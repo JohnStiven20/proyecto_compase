@@ -53,7 +53,7 @@ class HomeViewModel : ViewModel() {
 
         println("------------------hola--------------------------------------")
         pedidoTemporal.listaLineasPedididos.forEach { pedidoTemporal ->
-             println("hola $pedidoTemporal")
+             println("hola $pedidoTemporal m")
         }
 
     }
