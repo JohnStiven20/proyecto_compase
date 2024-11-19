@@ -17,7 +17,7 @@ class HomeViewModel : ViewModel() {
 
     val contadorCarritoLiveData: MutableLiveData<Int> = MutableLiveData()
 
-    val pedidoLiveData:MutableLiveData<PedidoDTO?> = MutableLiveData<PedidoDTO?>(null)
+    val pedidoLiveData: MutableLiveData<PedidoDTO?> = MutableLiveData<PedidoDTO?>(null)
 
     fun onAddCar(cantidad: Int, size: Size, productoDTO: ProductoDTO) {
 
@@ -51,15 +51,10 @@ class HomeViewModel : ViewModel() {
             pedidoLiveData.value = pedidoTemporal
         }
 
-        println("------------------hola--------------------------------------")
-        pedidoTemporal.listaLineasPedididos.forEach { pedidoTemporal ->
-             println("hola $pedidoTemporal m")
-        }
-
     }
 
-    fun onchageConatador(contador1: Int) {
-        contadorCarritoLiveData.value = contador1;
+    fun onChageContadorCarrito(contadorCarrito: Int) {
+        contadorCarritoLiveData.value = contadorCarrito
     }
 }
 

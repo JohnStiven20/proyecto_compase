@@ -78,33 +78,3 @@ fun MenuPizzeria(): Size {
     return tipo
 }
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview2() {
-    MaterialTheme {
-        AppTheme {
-
-            //HomeScreen(HomeViewModel())
-
-            //AppNavigation()
-            /**
-             *  RegistroScreen(RegistroViewModel(), rememberNavController())
-             *  LoginScreen(LoginViewModel(),rememberNavController() )
-             */
-            /**
-             *  RegistroScreen(RegistroViewModel(), rememberNavController())
-             *  LoginScreen(LoginViewModel(),rememberNavController() )
-             */
-            /**
-             *  RegistroScreen(RegistroViewModel(), rememberNavController())
-             *  LoginScreen(LoginViewModel(),rememberNavController() )
-             */
-            /**
-             *  RegistroScreen(RegistroViewModel(), rememberNavController())
-             *  LoginScreen(LoginViewModel(),rememberNavController() )
-             */
-
-        }
-
-    }
-}

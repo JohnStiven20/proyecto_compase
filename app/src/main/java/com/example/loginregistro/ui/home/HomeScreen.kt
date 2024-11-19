@@ -86,7 +86,7 @@ fun HomeScreen(homeViewModel: HomeViewModel) {
                 productos = pizzas,
                 imagenProducto = painterResource(R.drawable.fotopizza),
                 tituloSeccion = "Sección Pizza",
-                onChangeCarrito = {homeViewModel.onchageConatador(contadorCarrito + it)},
+                onChangeCarrito = {homeViewModel.onChageContadorCarrito(contadorCarrito + it)},
                 onAddCar = {cantidad, size, producto ->
                     homeViewModel.onAddCar(cantidad, size, producto)
                 }
@@ -100,7 +100,7 @@ fun HomeScreen(homeViewModel: HomeViewModel) {
                 productos = pastas,
                 imagenProducto = painterResource(R.drawable.fotopasta),
                 tituloSeccion = "Sección Pasta",
-                onChangeCarrito = {homeViewModel.onchageConatador(contadorCarrito + it)},
+                onChangeCarrito = {homeViewModel.onChageContadorCarrito(contadorCarrito + it)},
                 onAddCar = {cantidad, size, producto ->
                     homeViewModel.onAddCar(cantidad, size, producto)
                 })
@@ -111,13 +111,12 @@ fun HomeScreen(homeViewModel: HomeViewModel) {
                 productos = bebidas,
                 imagenProducto = painterResource(R.drawable.fotobebida),
                 tituloSeccion = "Sección Bebida",
-                onChangeCarrito = {homeViewModel.onchageConatador(contadorCarrito + it)},
+                onChangeCarrito = {homeViewModel.onChageContadorCarrito(contadorCarrito + it)},
                 onAddCar = {cantidad, size, producto ->
                     homeViewModel.onAddCar(cantidad, size, producto)
                 }
             )
         }
-
     }
 }
 
@@ -305,7 +304,7 @@ fun TopBar(contadorCarrito: Int) {
                             verticalArrangement = Arrangement.Center
                         ) {
                             Text(
-                                modifier = Modifier.offset(y = -2.dp, x = 0.dp),
+                                modifier = Modifier.offset(y = (-2).dp, x = 0.dp),
                                 text = contadorCarrito.toString()
                             )
                         }
