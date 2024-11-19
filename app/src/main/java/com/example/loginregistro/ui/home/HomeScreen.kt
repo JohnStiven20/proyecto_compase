@@ -50,7 +50,6 @@ import com.example.loginregistro.R
 import com.example.loginregistro.ui.componentes.MenuPizzeria
 import com.example.loginregistro.ui.data.modelo.ProductoDTO
 import com.example.loginregistro.ui.data.modelo.Tipo
-import modelo.LineaPedidoDTO
 import modelo.Size
 
 
@@ -58,7 +57,6 @@ import modelo.Size
 fun HomeScreen(homeViewModel: HomeViewModel) {
 
     val productos by homeViewModel.productosLiveData.observeAsState(mutableListOf())
-    val lineasPedidos by homeViewModel.lineasPedidosLiveData.observeAsState(mutableListOf())
     val contadorCarrito = homeViewModel.contadorCarritoLiveData.observeAsState(0).value ?: 0
 
     val pizzas = productos.filter { it.tipo == Tipo.PIZZA }
@@ -88,10 +86,9 @@ fun HomeScreen(homeViewModel: HomeViewModel) {
                 productos = pizzas,
                 imagenProducto = painterResource(R.drawable.fotopizza),
                 tituloSeccion = "Sección Pizza",
-                onLineaPedidoChange = {homeViewModel.onChangeLineasPedidosLiveDatas(lineasPedidos) },
                 onChangeCarrito = {homeViewModel.onchageConatador(contadorCarrito + it)},
-                onAddCar = {id,cantidad, size, producto ->
-                    homeViewModel.onAddCar(id,cantidad, size, producto)
+                onAddCar = {cantidad, size, producto ->
+                    homeViewModel.onAddCar(cantidad, size, producto)
                 }
 
 
@@ -103,10 +100,9 @@ fun HomeScreen(homeViewModel: HomeViewModel) {
                 productos = pastas,
                 imagenProducto = painterResource(R.drawable.fotopasta),
                 tituloSeccion = "Sección Pasta",
-                onLineaPedidoChange = { homeViewModel.onChangeLineasPedidosLiveDatas(lineasPedidos) },
                 onChangeCarrito = {homeViewModel.onchageConatador(contadorCarrito + it)},
-                onAddCar = {id, cantidad, size, producto ->
-                    homeViewModel.onAddCar(id,cantidad, size, producto)
+                onAddCar = {cantidad, size, producto ->
+                    homeViewModel.onAddCar(cantidad, size, producto)
                 })
         }
 
@@ -115,10 +111,9 @@ fun HomeScreen(homeViewModel: HomeViewModel) {
                 productos = bebidas,
                 imagenProducto = painterResource(R.drawable.fotobebida),
                 tituloSeccion = "Sección Bebida",
-                onLineaPedidoChange = {homeViewModel.onChangeLineasPedidosLiveDatas(lineasPedidos)},
                 onChangeCarrito = {homeViewModel.onchageConatador(contadorCarrito + it)},
-                onAddCar = {id,cantidad, size, producto ->
-                    homeViewModel.onAddCar(id,cantidad, size, producto)
+                onAddCar = {cantidad, size, producto ->
+                    homeViewModel.onAddCar(cantidad, size, producto)
                 }
             )
         }
@@ -131,9 +126,8 @@ fun ProductCarousel(
     productos: List<ProductoDTO>,
     imagenProducto: Painter = painterResource(R.drawable.fotopizza),
     tituloSeccion: String = "",
-    onLineaPedidoChange: () -> Unit,
     onChangeCarrito: (Int) -> Unit,
-    onAddCar: (Int,Int, Size, ProductoDTO) -> Unit
+    onAddCar: (Int, Size, ProductoDTO) -> Unit
 ) {
 
     Text(text = tituloSeccion)
@@ -148,7 +142,6 @@ fun ProductCarousel(
                 onChangeContadorCarrito = {onChangeCarrito(it)},
                 onAddCar = onAddCar
             )
-            onLineaPedidoChange()
             Spacer(modifier = Modifier.height(15.dp))
         }
     }
@@ -159,13 +152,12 @@ fun ProductCard(
     imagenProducto: Painter = painterResource(R.drawable.fotopizza),
     producto: ProductoDTO = ProductoDTO(),
     onChangeContadorCarrito: (Int) -> Unit,
-    onAddCar: (Int,Int, Size, ProductoDTO) -> Unit
+    onAddCar: (Int, Size, ProductoDTO) -> Unit
 ){
 
     val ingredientes: String = producto.listaIngredienteDTO.joinToString { it.nombre }
     var cantidad by rememberSaveable { mutableIntStateOf(1) }
     var sizeProducto by rememberSaveable { mutableStateOf(Size.GRANDE) }
-    var lineaPedidoId by rememberSaveable { mutableIntStateOf(1) }
     var botonHabilitado by rememberSaveable { mutableStateOf(false) }
 
     Card(
@@ -223,9 +215,8 @@ fun ProductCard(
                 ) {
                     TextButton(
                         onClick = {
-                            lineaPedidoId++
                             onChangeContadorCarrito(cantidad)
-                            onAddCar(lineaPedidoId, cantidad ,sizeProducto,producto)
+                            onAddCar(cantidad ,sizeProducto,producto)
                         },
                         enabled = botonHabilitado
                     ) {

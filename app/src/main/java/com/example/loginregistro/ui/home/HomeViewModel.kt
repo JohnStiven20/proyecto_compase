@@ -15,39 +15,46 @@ class HomeViewModel : ViewModel() {
 
     val productosLiveData = MutableLiveData(generarListaProductos())
 
-    val lineasPedidosLiveData = MutableLiveData(generarListaLineaPedidos())
-
     val contadorCarritoLiveData: MutableLiveData<Int> = MutableLiveData()
 
-    fun onChangeLineasPedidosLiveDatas(listaLineaPedidos1: List<LineaPedidoDTO>) {
-        lineasPedidosLiveData.value = listaLineaPedidos1
-    }
+    val pedidoLiveData:MutableLiveData<PedidoDTO?> = MutableLiveData<PedidoDTO?>(null)
 
-    val pedidoLiveData = MutableLiveData(
-        PedidoDTO(
-            estado = EstadoPedido.PEDIENTE,
-            listaLineasPedididos = mutableListOf(),
-            precioTotal = 0.0,
-            fecha = Date()
-        )
-    )
+    fun onAddCar(cantidad: Int, size: Size, productoDTO: ProductoDTO) {
 
-    fun onAddCar(id: Int, cantidad: Int, size: Size, productoDTO: ProductoDTO) {
-        val pedidoTemporal = PedidoDTO()
-        productoDTO.size = size
-        val lineaPedidoDTO = LineaPedidoDTO(id, cantidad, productoDTO)
-        pedidoTemporal.listaLineasPedididos.add(lineaPedidoDTO)
-        val sumaPreciosProductos = pedidoTemporal.listaLineasPedididos
-            .map { it.productoDTO.precio}
-            .sum()
+        var pedidoTemporal: PedidoDTO? = pedidoLiveData.value
+        val productoTemporal = ProductoDTO()
 
+        if (pedidoTemporal == null) {
 
-        pedidoTemporal.listaLineasPedididos.forEach { lineaPedido ->
-            println("hola $lineaPedido")
-            println("----------------------hola-----------------------------")
+            pedidoTemporal = PedidoDTO(fecha = Date(), estado = EstadoPedido.PEDIENTE)
+
+            productoTemporal.precio = productoDTO.precio
+            productoTemporal.nombre = productoDTO.nombre
+            productoTemporal.tipo = productoDTO.tipo
+            productoTemporal.listaIngredienteDTO = productoDTO.listaIngredienteDTO
+            productoTemporal.size = size
+
+            pedidoTemporal.listaLineasPedididos.add(LineaPedidoDTO(cantidad, productoTemporal))
+            val sumaProductoPrecio = pedidoTemporal.listaLineasPedididos.sumOf { it.productoDTO.precio }
+            pedidoTemporal.precioTotal = sumaProductoPrecio
+            pedidoLiveData.value = pedidoTemporal
+
+        } else {
+            productoTemporal.precio = productoDTO.precio
+            productoTemporal.nombre = productoDTO.nombre
+            productoTemporal.tipo = productoDTO.tipo
+            productoTemporal.listaIngredienteDTO = productoDTO.listaIngredienteDTO
+            productoTemporal.size = size
+            pedidoTemporal.listaLineasPedididos.add(LineaPedidoDTO(cantidad, productoTemporal))
+            val sumaProductoPrecio = pedidoTemporal.listaLineasPedididos.sumOf { it.productoDTO.precio }
+            pedidoTemporal.precioTotal = sumaProductoPrecio
+            pedidoLiveData.value = pedidoTemporal
         }
-        pedidoTemporal.precioTotal = sumaPreciosProductos
-        pedidoLiveData.value = pedidoTemporal
+
+        println("------------------hola--------------------------------------")
+        pedidoTemporal.listaLineasPedididos.forEach { pedidoTemporal ->
+             println("hola $pedidoTemporal")
+        }
 
     }
 
@@ -57,27 +64,8 @@ class HomeViewModel : ViewModel() {
 }
 
 
-fun generarListaLineaPedidos(): List<LineaPedidoDTO> {
-
-    return mutableListOf(
-        LineaPedidoDTO(
-            id = 1,
-            cantidad = 50,
-            ProductoDTO(
-                tipo = Tipo.PIZZA,
-                id = 1,
-                size = Size.ENANA,
-                precio = 5.0,
-                nombre = "Pizza",
-                listaIngredienteDTO = mutableListOf()
-            )
-        )
-    )
-}
-
-
 fun generarListaProductos(): List<ProductoDTO> {
-    // Ingredientes comunes
+
     val ingredienteQueso = IngredienteDTO(nombre = "Queso")
     val ingredienteTomate = IngredienteDTO(nombre = "Tomate")
     val ingredienteJamon = IngredienteDTO(nombre = "Jamón")
