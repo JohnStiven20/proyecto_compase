@@ -1,5 +1,6 @@
 package com.example.loginregistro.ui.home
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -18,7 +19,7 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.*
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -26,6 +27,8 @@ import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -44,10 +47,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.loginregistro.R
-import com.example.loginregistro.ui.componentes.MenuPizzeria
 import com.example.loginregistro.ui.data.modelo.ProductoDTO
 import com.example.loginregistro.ui.data.modelo.Tipo
 import modelo.Size
@@ -86,12 +89,9 @@ fun HomeScreen(homeViewModel: HomeViewModel) {
                 productos = pizzas,
                 imagenProducto = painterResource(R.drawable.fotopizza),
                 tituloSeccion = "Sección Pizza",
-                onChangeCarrito = {homeViewModel.onChageContadorCarrito(contadorCarrito + it)},
-                onAddCar = {cantidad, size, producto ->
+                onAddCar = { cantidad, size, producto ->
                     homeViewModel.onAddCar(cantidad, size, producto)
                 }
-
-
             )
         }
 
@@ -100,8 +100,7 @@ fun HomeScreen(homeViewModel: HomeViewModel) {
                 productos = pastas,
                 imagenProducto = painterResource(R.drawable.fotopasta),
                 tituloSeccion = "Sección Pasta",
-                onChangeCarrito = {homeViewModel.onChageContadorCarrito(contadorCarrito + it)},
-                onAddCar = {cantidad, size, producto ->
+                onAddCar = { cantidad, size, producto ->
                     homeViewModel.onAddCar(cantidad, size, producto)
                 })
         }
@@ -111,8 +110,7 @@ fun HomeScreen(homeViewModel: HomeViewModel) {
                 productos = bebidas,
                 imagenProducto = painterResource(R.drawable.fotobebida),
                 tituloSeccion = "Sección Bebida",
-                onChangeCarrito = {homeViewModel.onChageContadorCarrito(contadorCarrito + it)},
-                onAddCar = {cantidad, size, producto ->
+                onAddCar = { cantidad, size, producto ->
                     homeViewModel.onAddCar(cantidad, size, producto)
                 }
             )
@@ -125,7 +123,6 @@ fun ProductCarousel(
     productos: List<ProductoDTO>,
     imagenProducto: Painter = painterResource(R.drawable.fotopizza),
     tituloSeccion: String = "",
-    onChangeCarrito: (Int) -> Unit,
     onAddCar: (Int, Size, ProductoDTO) -> Unit
 ) {
 
@@ -138,7 +135,6 @@ fun ProductCarousel(
             ProductCard(
                 producto = producto,
                 imagenProducto = imagenProducto,
-                onChangeContadorCarrito = {onChangeCarrito(it)},
                 onAddCar = onAddCar
             )
             Spacer(modifier = Modifier.height(15.dp))
@@ -150,14 +146,15 @@ fun ProductCarousel(
 fun ProductCard(
     imagenProducto: Painter = painterResource(R.drawable.fotopizza),
     producto: ProductoDTO = ProductoDTO(),
-    onChangeContadorCarrito: (Int) -> Unit,
     onAddCar: (Int, Size, ProductoDTO) -> Unit
-){
+) {
 
     val ingredientes: String = producto.listaIngredienteDTO.joinToString { it.nombre }
     var cantidad by rememberSaveable { mutableIntStateOf(1) }
     var sizeProducto by rememberSaveable { mutableStateOf(Size.GRANDE) }
     var botonHabilitado by rememberSaveable { mutableStateOf(false) }
+    var contexto = LocalContext.current
+
 
     Card(
         colors = CardDefaults.cardColors(
@@ -214,8 +211,12 @@ fun ProductCard(
                 ) {
                     TextButton(
                         onClick = {
-                            onChangeContadorCarrito(cantidad)
-                            onAddCar(cantidad ,sizeProducto,producto)
+                            onAddCar(cantidad, sizeProducto, producto)
+                            Toast.makeText(
+                                contexto,
+                                "Se añadido $cantidad ${producto.tipo.toString().lowercase()}",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         },
                         enabled = botonHabilitado
                     ) {
@@ -250,14 +251,72 @@ fun ProductCard(
                         Text("+")
                     }
                 }
+
                 sizeProducto = MenuPizzeria()
 
                 botonHabilitado = sizeProducto != Size.NADA
             }
         }
     }
-
 }
+
+
+@Composable
+fun MenuPizzeria(): Size {
+
+    var expanded by rememberSaveable{ mutableStateOf(false) }
+    var texto by rememberSaveable{ mutableStateOf("selecciona tamaño") }
+    var tipo by rememberSaveable {mutableStateOf(Size.NADA)}
+
+    Column(modifier = Modifier.fillMaxSize(), Arrangement.Center, Alignment.CenterHorizontally) {
+
+        TextButton(onClick = { expanded = true }) {
+            Text(texto)
+        }
+
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            DropdownMenuItem(
+                text = { Text("Grande") },
+                onClick = {
+                    expanded = false
+                    texto = "Grande"
+                    tipo = Size.GRANDE
+                },
+            )
+
+            DropdownMenuItem(
+                text = { Text("Mediano") },
+                onClick = {
+                    expanded = false
+                    texto = "Mediano"
+                    tipo = Size.MEDIANO
+
+                },
+            )
+
+            DropdownMenuItem(
+                text = { Text("Enano") },
+                onClick = {
+                    expanded = false
+                    texto = "Enano"
+                    tipo = Size.ENANA
+                },
+            )
+
+            DropdownMenuItem(
+                text = { Text("Nada") },
+                onClick = {
+                    expanded = false
+                    texto = "selecciona tamaño"
+                    tipo = Size.NADA
+                },
+            )
+        }
+    }
+
+    return tipo
+}
+
 
 @Composable
 fun LogoImage() {
@@ -297,7 +356,7 @@ fun TopBar(contadorCarrito: Int) {
                             .size(20.dp)
                             .clip(CircleShape)
                             .background(Color.Red),
-                        ) {
+                    ) {
                         Column(
                             Modifier.fillMaxSize(),
                             horizontalAlignment = Alignment.CenterHorizontally,
@@ -314,4 +373,3 @@ fun TopBar(contadorCarrito: Int) {
         }
     )
 }
-

@@ -1,5 +1,6 @@
 package com.example.loginregistro.ui.home
 
+import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.loginregistro.ui.data.modelo.ProductoDTO
@@ -15,7 +16,7 @@ class HomeViewModel : ViewModel() {
 
     val productosLiveData = MutableLiveData(generarListaProductos())
 
-    val contadorCarritoLiveData: MutableLiveData<Int> = MutableLiveData()
+    val contadorCarritoLiveData: MutableLiveData<Int> = MutableLiveData(0)
 
     val pedidoLiveData: MutableLiveData<PedidoDTO?> = MutableLiveData<PedidoDTO?>(null)
 
@@ -28,36 +29,43 @@ class HomeViewModel : ViewModel() {
 
             pedidoTemporal = PedidoDTO(fecha = Date(), estado = EstadoPedido.PEDIENTE)
 
-            productoTemporal.precio = productoDTO.precio
-            productoTemporal.nombre = productoDTO.nombre
-            productoTemporal.tipo = productoDTO.tipo
-            productoTemporal.listaIngredienteDTO = productoDTO.listaIngredienteDTO
-            productoTemporal.size = size
+            productoTemporal.copy(
+                precio = productoDTO.precio,
+                nombre = productoDTO.nombre,
+                tipo = productoDTO.tipo,
+                listaIngredienteDTO = productoDTO.listaIngredienteDTO,
+                size = size
+            )
 
             pedidoTemporal.listaLineasPedididos.add(LineaPedidoDTO(cantidad, productoTemporal))
-            val sumaProductoPrecio = pedidoTemporal.listaLineasPedididos.sumOf { it.productoDTO.precio }
-            pedidoTemporal.precioTotal = sumaProductoPrecio
+            pedidoTemporal.precioTotal = pedidoTemporal.listaLineasPedididos.sumOf { it.productoDTO.precio }
+            contadorCarritoLiveData.value = onChangeContadorCarrito(pedidoTemporal.listaLineasPedididos)
             pedidoLiveData.value = pedidoTemporal
 
         } else {
-            productoTemporal.precio = productoDTO.precio
-            productoTemporal.nombre = productoDTO.nombre
-            productoTemporal.tipo = productoDTO.tipo
-            productoTemporal.listaIngredienteDTO = productoDTO.listaIngredienteDTO
-            productoTemporal.size = size
+
+            productoTemporal.copy(
+                precio = productoDTO.precio,
+                nombre = productoDTO.nombre,
+                tipo = productoDTO.tipo,
+                listaIngredienteDTO = productoDTO.listaIngredienteDTO,
+                size = size
+            )
+
             pedidoTemporal.listaLineasPedididos.add(LineaPedidoDTO(cantidad, productoTemporal))
-            val sumaProductoPrecio = pedidoTemporal.listaLineasPedididos.sumOf { it.productoDTO.precio }
-            pedidoTemporal.precioTotal = sumaProductoPrecio
+            pedidoTemporal.precioTotal = pedidoTemporal.listaLineasPedididos.sumOf {it.productoDTO.precio }
+
+            contadorCarritoLiveData.value = onChangeContadorCarrito(pedidoTemporal.listaLineasPedididos)
             pedidoLiveData.value = pedidoTemporal
         }
 
     }
 
-    fun onChageContadorCarrito(contadorCarrito: Int) {
-        contadorCarritoLiveData.value = contadorCarrito
+    fun onChangeContadorCarrito(listaLineasPedididos: MutableList<LineaPedidoDTO>): Int {
+        return listaLineasPedididos.sumOf { it.cantidad }
     }
-}
 
+}
 
 fun generarListaProductos(): List<ProductoDTO> {
 
@@ -72,7 +80,6 @@ fun generarListaProductos(): List<ProductoDTO> {
     val ingredienteAceitunas = IngredienteDTO(nombre = "Aceitunas")
     val ingredienteBacon = IngredienteDTO(nombre = "Bacon")
 
-    // Pizzas
     val pizzas = listOf(
         ProductoDTO(
             id = 1,
@@ -137,7 +144,6 @@ fun generarListaProductos(): List<ProductoDTO> {
         )
     )
 
-    // Pastas
     val pastas = listOf(
         ProductoDTO(
             id = 6,
@@ -176,7 +182,6 @@ fun generarListaProductos(): List<ProductoDTO> {
         )
     )
 
-    // Bebidas
     val bebidas = listOf(
         ProductoDTO(
             id = 9,
