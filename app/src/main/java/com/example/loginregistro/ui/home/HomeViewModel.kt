@@ -1,6 +1,6 @@
 package com.example.loginregistro.ui.home
 
-import android.widget.Toast
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.loginregistro.ui.data.modelo.ProductoDTO
@@ -38,8 +38,8 @@ class HomeViewModel : ViewModel() {
             )
 
             pedidoTemporal.listaLineasPedididos.add(LineaPedidoDTO(cantidad, productoTemporal))
-            pedidoTemporal.precioTotal = pedidoTemporal.listaLineasPedididos.sumOf { it.productoDTO.precio }
-            contadorCarritoLiveData.value = onChangeContadorCarrito(pedidoTemporal.listaLineasPedididos)
+            pedidoTemporal.precioTotal = pedidoTemporal.listaLineasPedididos.sumOf { it.productoDTO.precio * it.cantidad }
+            contadorCarritoLiveData.value = pedidoTemporal.listaLineasPedididos.sumOf { it.cantidad }
             pedidoLiveData.value = pedidoTemporal
 
         } else {
@@ -55,15 +55,15 @@ class HomeViewModel : ViewModel() {
             pedidoTemporal.listaLineasPedididos.add(LineaPedidoDTO(cantidad, productoTemporal))
             pedidoTemporal.precioTotal = pedidoTemporal.listaLineasPedididos.sumOf {it.productoDTO.precio }
 
-            contadorCarritoLiveData.value = onChangeContadorCarrito(pedidoTemporal.listaLineasPedididos)
+            contadorCarritoLiveData.value = pedidoTemporal.listaLineasPedididos.sumOf { it.cantidad }
             pedidoLiveData.value = pedidoTemporal
         }
 
+        Log.d("Pedido" , "${pedidoLiveData.value}")
+
     }
 
-    fun onChangeContadorCarrito(listaLineasPedididos: MutableList<LineaPedidoDTO>): Int {
-        return listaLineasPedididos.sumOf { it.cantidad }
-    }
+
 
 }
 
