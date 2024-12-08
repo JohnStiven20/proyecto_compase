@@ -34,33 +34,30 @@ class RegistroViewModel : ViewModel() {
     val listaCondicionales = MutableLiveData(mutableListOf(false, false, false))
 
 
-    fun OnClienteChange(clienteDTO: ClienteDTO) :Unit{
+    fun OnClienteChange(clienteDTO: ClienteDTO,listaCondicioanes:MutableList<Boolean> ) :Unit{
 
-        cliente.value = clienteDTO ;
+        clienteDTO.let { valor ->
+            listaCondicioanes.let { valor2 ->
 
-        cliente.value?.let { valor ->
-
-            listaCondicionales.value?.let { valor2 ->
-
-                if (valor.nombre.isNotBlank()
-                    && valor.email.isNotBlank()
-                    && valor.password.isNotBlank()
-                    && valor.direccion.isNotBlank()
-                    && valor.telefono.isNotBlank()
-                    && valor.dni.isNotBlank() &&
-                    !valor2[0] && !valor2[1] && !valor2[2]
-                ) {
-                    estado.value = true;
-                }
-                else{
-                    estado.value =  false
-                }
+                    if (valor.nombre.isNotBlank()
+                        && valor.email.isNotBlank()
+                        && valor.password.isNotBlank()
+                        && valor.direccion.isNotBlank()
+                        && valor.telefono.isNotBlank()
+                        && valor.dni.isNotBlank() &&
+                        !valor2[0] && !valor2[1] && !valor2[2]
+                    ) {
+                        estado.value = true;
+                    } else{
+                        estado.value =  false
+                    }
             }
-        }
-    }
 
-    fun OnChagelistaCondicionales(listaCondicioanes:MutableList<Boolean>) {
+        }
+
+        cliente.value = clienteDTO;
         listaCondicionales.value = listaCondicioanes
+
     }
 
     fun OnRegistrarClick(cliente:ClienteDTO) {

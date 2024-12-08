@@ -15,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -23,13 +24,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.example.compose.AppTheme
 import com.example.loginregistro.R
+import com.example.loginregistro.ui.componentes.AppNavigation
 import com.example.loginregistro.ui.componentes.CampoTextoPassword
 import com.example.loginregistro.ui.componentes.CampoTextoPersonalizado
 import com.example.loginregistro.ui.componentes.MensajeDeError
+import com.example.loginregistro.ui.componentes.Screen
 import com.example.loginregistro.ui.errores.ErrorMessage
+import com.example.loginregistro.ui.login.LoginScreen
+import com.example.loginregistro.ui.login.LoginViewModel
 import modelo.ClienteDTO
 
 
@@ -83,8 +91,7 @@ fun RegistroScreen(registroViewModel: RegistroViewModel, navController: NavContr
                 text = clienteDTO.nombre,
                 Onchage = { valor ->
                     listaCondicionales[0] = !valor.matches("^[a-zA-ZÀ-ÿ\\s]+$".toRegex()) && valor.isNotBlank()
-                    registroViewModel.OnClienteChange(clienteDTO.copy(nombre = valor))
-                    registroViewModel.OnChagelistaCondicionales(listaCondicionales)
+                    registroViewModel.OnClienteChange(clienteDTO.copy(nombre = valor), listaCondicionales)
                 }
             )
 
@@ -94,7 +101,7 @@ fun RegistroScreen(registroViewModel: RegistroViewModel, navController: NavContr
                 nombreCampo = "DNI",
                 text = clienteDTO.dni,
                 Onchage = {
-                    registroViewModel.OnClienteChange(clienteDTO.copy(dni = it))
+                    registroViewModel.OnClienteChange(clienteDTO.copy(dni = it), listaCondicionales)
                 }
             )
 
@@ -102,8 +109,7 @@ fun RegistroScreen(registroViewModel: RegistroViewModel, navController: NavContr
                 text = clienteDTO.password,
                 Onchage = { valor ->
                     listaCondicionales[1] = valor.length < 4 && valor.isNotBlank()
-                    registroViewModel.OnClienteChange(clienteDTO.copy(password = valor))
-                    registroViewModel.OnChagelistaCondicionales(listaCondicionales)
+                    registroViewModel.OnClienteChange(clienteDTO.copy(password = valor), listaCondicionales)
                 })
 
             MensajeDeError(mostrar = listaCondicionales[1], mensaje = errorMessage.password)
@@ -112,7 +118,7 @@ fun RegistroScreen(registroViewModel: RegistroViewModel, navController: NavContr
                 nombreCampo = "Telefono",
                 text = clienteDTO.telefono,
                 Onchage = {
-                    registroViewModel.OnClienteChange(clienteDTO.copy(telefono = it))
+                    registroViewModel.OnClienteChange(clienteDTO.copy(telefono = it), listaCondicionales)
                 }
             )
 
@@ -122,8 +128,7 @@ fun RegistroScreen(registroViewModel: RegistroViewModel, navController: NavContr
                 tipo = KeyboardType.Email,
                 Onchage = { valor ->
                     listaCondicionales[2] = !Patterns.EMAIL_ADDRESS.matcher(valor).matches() && valor.isNotBlank()
-                    registroViewModel.OnClienteChange(clienteDTO.copy(email = valor))
-                    registroViewModel.OnChagelistaCondicionales(listaCondicionales)
+                    registroViewModel.OnClienteChange(clienteDTO.copy(email = valor), listaCondicionales)
                 }
             )
 
@@ -133,14 +138,16 @@ fun RegistroScreen(registroViewModel: RegistroViewModel, navController: NavContr
                 nombreCampo = "direccion",
                 text = clienteDTO.direccion,
                 Onchage = {
-                    registroViewModel.OnClienteChange(clienteDTO.copy(direccion = it))
+                    registroViewModel.OnClienteChange(clienteDTO.copy(direccion = it), listaCondicionales)
                 }
             )
+
+
 
             Button(
                 onClick = {
                     registroViewModel.OnRegistrarClick(clienteDTO)
-                    navController.navigate("login")
+                    navController.navigate(Screen.Login.route)
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -152,5 +159,33 @@ fun RegistroScreen(registroViewModel: RegistroViewModel, navController: NavContr
                 Text("Registrar")
             }
         }
+    }
+}
+
+
+@Preview(showBackground = true)
+@Composable
+fun GreetingPreview() {
+    MaterialTheme {
+        AppTheme {
+
+            //HomeScreen(HomeViewModel())
+
+            val navController = rememberNavController()
+            //LoginScreen(loginViewModel = LoginViewModel(), navController = navController)
+            AppNavigation(navController = navController)
+
+            //AppNavigation()
+            /**
+             *  RegistroScreen(RegistroViewModel(), rememberNavController())
+             *  LoginScreen(LoginViewModel(),rememberNavController() )
+             */
+            /**
+             *  RegistroScreen(RegistroViewModel(), rememberNavController())
+             *  LoginScreen(LoginViewModel(),rememberNavController() )
+             */
+
+        }
+
     }
 }

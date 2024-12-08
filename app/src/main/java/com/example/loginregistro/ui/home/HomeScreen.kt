@@ -7,6 +7,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,23 +24,34 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DrawerState
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -49,18 +61,66 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.example.compose.AppTheme
 import com.example.loginregistro.R
+import com.example.loginregistro.ui.componentes.Screen
 import com.example.loginregistro.ui.data.modelo.ProductoDTO
 import com.example.loginregistro.ui.data.modelo.Tipo
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import modelo.Size
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(homeViewModel: HomeViewModel) {
+fun HomeScreen(homeViewModel: HomeViewModel, navController: NavController) {
 
+    val screens: MutableList<Screen> = mutableListOf(Screen.Home)
     val productos by homeViewModel.productosLiveData.observeAsState(mutableListOf())
     val contadorCarrito = homeViewModel.contadorCarritoLiveData.observeAsState(0).value ?: 0
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            Drawer(
+                navController = navController,
+                drawerState = drawerState,
+                scope = scope,
+                items = screens
+            )
+        })
+    {
+        Scaffold(
+            topBar = {
+                TopBar(contadorCarrito, drawerState, scope)
+            },
+            content = { paddingValues ->
+                Body(
+                    productos = productos,
+                    paddingValues = paddingValues,
+                    homeViewModel = homeViewModel
+                )
+
+            }
+
+        )
+    }
+}
+
+@Composable
+fun Body(
+    productos: List<ProductoDTO>,
+    paddingValues: PaddingValues,
+    homeViewModel: HomeViewModel
+
+) {
 
     val pizzas = productos.filter { it.tipo == Tipo.PIZZA }
     val pastas = productos.filter { it.tipo == Tipo.PASTA }
@@ -70,15 +130,12 @@ fun HomeScreen(homeViewModel: HomeViewModel) {
         modifier = Modifier
             .fillMaxSize()
             .systemBarsPadding()
-            .background(MaterialTheme.colorScheme.outline),
+            .background(MaterialTheme.colorScheme.outline)
+            .padding(paddingValues),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
 
     ) {
-
-        item {
-            TopBar(contadorCarrito)
-        }
 
         item {
             LogoImage()
@@ -92,6 +149,8 @@ fun HomeScreen(homeViewModel: HomeViewModel) {
                 onAddCar = { cantidad, size, producto ->
                     homeViewModel.onAddCar(cantidad, size, producto)
                 }
+
+
             )
         }
 
@@ -102,7 +161,8 @@ fun HomeScreen(homeViewModel: HomeViewModel) {
                 tituloSeccion = "Sección Pasta",
                 onAddCar = { cantidad, size, producto ->
                     homeViewModel.onAddCar(cantidad, size, producto)
-                })
+                }
+            )
         }
 
         item {
@@ -116,6 +176,7 @@ fun HomeScreen(homeViewModel: HomeViewModel) {
             )
         }
     }
+
 }
 
 @Composable
@@ -264,9 +325,9 @@ fun ProductCard(
 @Composable
 fun MenuPizzeria(): Size {
 
-    var expanded by rememberSaveable{ mutableStateOf(false) }
-    var texto by rememberSaveable{ mutableStateOf("selecciona tamaño") }
-    var tipo by rememberSaveable {mutableStateOf(Size.NADA)}
+    var expanded by rememberSaveable { mutableStateOf(false) }
+    var texto by rememberSaveable { mutableStateOf("selecciona tamaño") }
+    var tipo by rememberSaveable { mutableStateOf(Size.NADA) }
 
     Column(modifier = Modifier.fillMaxSize(), Arrangement.Center, Alignment.CenterHorizontally) {
 
@@ -335,11 +396,23 @@ fun LogoImage() {
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@ExperimentalMaterial3Api
 @Composable
-fun TopBar(contadorCarrito: Int) {
+fun TopBar(contadorCarrito: Int, drawerState: DrawerState, scope: CoroutineScope) {
     TopAppBar(
         title = { Text(text = "Pizzería") },
+        navigationIcon = {
+            TextButton(onClick = {
+                if (drawerState.isOpen) {
+                    scope.launch { drawerState.close() }
+                } else {
+                    scope.launch { drawerState.open() }
+                }
+            }) {
+                Icon(imageVector = Icons.Default.Menu, contentDescription = null)
+            }
+
+        },
         actions = {
             BadgedBox(
                 badge = {}
@@ -372,4 +445,114 @@ fun TopBar(contadorCarrito: Int) {
             }
         }
     )
+}
+
+@Composable
+fun Drawer(
+    navController: NavController,
+    drawerState: DrawerState,
+    scope: CoroutineScope,
+    items: List<Screen>
+) {
+    ModalDrawerSheet(modifier = Modifier.width(200.dp)) {
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Spacer(modifier = Modifier.height(10.dp))
+
+            items.forEach { screen ->
+                DrawerItem(navController, screen)
+                scope.launch { drawerState.close() }
+                Spacer(modifier = Modifier.height(10.dp))
+            }
+
+            CerrarSesion(navController, drawerState, scope)
+
+        }
+    }
+}
+
+@Composable
+fun DrawerItem(navController: NavController, screen: Screen) {
+    NavigationDrawerItem(
+        label = {
+            Text(
+                screen.route,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+        shape = RoundedCornerShape(1.dp),
+        selected = false,
+        onClick = {
+            navController.navigate(screen.route)
+        }
+    )
+}
+
+@Composable
+fun CerrarSesion(navController: NavController, drawerState: DrawerState, scope: CoroutineScope) {
+
+    var showDialog by remember { mutableStateOf(false) }
+
+    NavigationDrawerItem(
+        label = {
+            Text(
+                "Cerrar sesion",
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+        shape = RoundedCornerShape(1.dp),
+        selected = false,
+        onClick = {
+            showDialog = !showDialog
+        }
+    )
+
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                showDialog = false
+            },
+            title = {
+                Text(text = "Cierre de sesión")
+            },
+            text = {
+                Text("¿Estás seguro de que quieres cerrar sesión?")
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    showDialog = false
+                    navController.navigate(Screen.Login.route)
+                }) {
+                    Text("Sí")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    scope.launch { drawerState.close()}
+                    showDialog = false
+                }) {
+                    Text("No")
+                }
+            }
+        )
+    }
+
+}
+
+
+@Preview(showBackground = true)
+@Composable
+fun GreetingPreview() {
+    MaterialTheme {
+        AppTheme {
+
+            HomeScreen(HomeViewModel(), navController = rememberNavController())
+
+        }
+
+    }
 }

@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -24,11 +25,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.example.compose.AppTheme
 import com.example.loginregistro.R
 import com.example.loginregistro.ui.componentes.CampoTextoPassword
 import com.example.loginregistro.ui.componentes.CampoTextoPersonalizado
+import com.example.loginregistro.ui.componentes.Screen
 import com.example.loginregistro.ui.data.modelo.LoginDTO
 import com.example.loginregistro.ui.errores.ErrorMessage
 
@@ -38,10 +43,8 @@ fun LoginScreen(loginViewModel: LoginViewModel, navController: NavController) {
 
 
     val loginDTO: LoginDTO by loginViewModel.login.observeAsState(LoginDTO(email = "", password = ""))
-
     val estado: Boolean by loginViewModel.estado.observeAsState(false)
-
-    val errorMessage: ErrorMessage by loginViewModel.errorMessage.observeAsState(ErrorMessage())
+    //val errorMessage: ErrorMessage by loginViewModel.errorMessage.observeAsState(ErrorMessage())
 
     val listaCondicionales by loginViewModel.listaCondicionales.observeAsState(
         mutableListOf(
@@ -99,10 +102,15 @@ fun LoginScreen(loginViewModel: LoginViewModel, navController: NavController) {
 
            // MensajeDeError(mostrar = listaCondicionales[1], mensaje = errorMessage.password)
 
+            TextButton(onClick = { navController.navigate(Screen.Registro.route)}) {
+                Text(text = "¿Quiere registrarse aqui?")
+            }
+
+
             Button(
                 onClick = {
                     loginViewModel.OnRegistrarClick(loginDTO)
-                    navController.navigate("Home")
+                    navController.navigate(Screen.Home.route)
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -113,6 +121,23 @@ fun LoginScreen(loginViewModel: LoginViewModel, navController: NavController) {
             ) {
                 Text("Login")
             }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun GreetingPreview() {
+    MaterialTheme {
+        AppTheme {
+
+            //HomeScreen(HomeViewModel())
+
+            val navController = rememberNavController()
+            LoginScreen(loginViewModel = LoginViewModel(), navController = navController)
+            //AppNavigation(navController = navController)
+
+
         }
     }
 }
