@@ -75,7 +75,7 @@ fun LoginScreen(loginViewModel: LoginViewModel, navController: NavController) {
                         RoundedCornerShape(percent = 100)
                     ),
             )
-            
+
             Spacer(modifier = Modifier.height(100.dp))
 
             CampoTextoPersonalizado(
@@ -134,7 +134,7 @@ fun GreetingPreview() {
             //HomeScreen(HomeViewModel())
 
             val navController = rememberNavController()
-            LoginScreen(loginViewModel = LoginViewModel(), navController = navController)
+            //LoginScreen(loginViewModel = LoginViewModel(), navController = navController)
             //AppNavigation(navController = navController)
 
 

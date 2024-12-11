@@ -28,16 +28,8 @@ class MainActivity : ComponentActivity() {
 fun GreetingPreview() {
     MaterialTheme {
         AppTheme {
-
             val navController = rememberNavController()
             AppNavigation(navController = navController)
-
-            //AppNavigation()
-            /**
-             *  RegistroScreen(RegistroViewModel(), rememberNavController())
-             *  LoginScreen(LoginViewModel(),rememberNavController() )
-             */
-
         }
 
     }

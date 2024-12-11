@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.loginregistro.data.modelo.ProductoDTO
 import com.example.loginregistro.data.modelo.Tipo
+import com.example.loginregistro.data.repositories.ProductoRepositoty
 import modelo.EstadoPedido
 import modelo.IngredienteDTO
 import modelo.LineaPedidoDTO
@@ -12,7 +13,7 @@ import modelo.PedidoDTO
 import modelo.Size
 import java.util.Date
 
-class HomeViewModel : ViewModel() {
+class HomeViewModel(productoRepositoty: ProductoRepositoty) : ViewModel() {
 
     val productosLiveData = MutableLiveData(generarListaProductos())
 

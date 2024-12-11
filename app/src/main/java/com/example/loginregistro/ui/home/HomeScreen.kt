@@ -545,15 +545,3 @@ fun CerrarSesion(navController: NavController, drawerState: DrawerState, scope: 
 }
 
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    MaterialTheme {
-        AppTheme {
-
-            HomeScreen(HomeViewModel(), navController = rememberNavController())
-
-        }
-
-    }
-}

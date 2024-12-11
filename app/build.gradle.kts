@@ -64,6 +64,7 @@ dependencies {
     implementation(libs.androidx.ui.text.google.fonts)
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.tracing.perfetto.handshake)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -74,5 +75,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose.v284)
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
+
+
 
 }

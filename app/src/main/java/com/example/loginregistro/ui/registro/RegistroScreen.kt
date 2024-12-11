@@ -47,15 +47,9 @@ fun RegistroScreen(registroViewModel: RegistroViewModel, navController: NavContr
     )
 
     val estado: Boolean by registroViewModel.estado.observeAsState(false)
-
     val errorMessage: ErrorMessage by registroViewModel.errorMessage.observeAsState(ErrorMessage())
-
     val listaCondicionales by registroViewModel.listaCondicionales.observeAsState(
-        mutableListOf(
-            false,
-            false,
-            false
-        )
+        mutableListOf(false, false, false)
     )
 
     LazyColumn(
@@ -65,39 +59,33 @@ fun RegistroScreen(registroViewModel: RegistroViewModel, navController: NavContr
             .systemBarsPadding(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
         item {
-
             Image(
                 painter = painterResource(R.drawable.logopizza),
                 contentDescription = "Imagen",
                 modifier = Modifier
                     .padding(30.dp)
                     .size(width = 300.dp, height = 300.dp)
-                    .clip(shape = RoundedCornerShape(percent = 100))
-                    .border(
-                        3.dp,
-                        MaterialTheme.colorScheme.onBackground,
-                        RoundedCornerShape(percent = 100)
-                    ),
+                    .clip(RoundedCornerShape(percent = 100))
+                    .border(3.dp, MaterialTheme.colorScheme.onBackground, RoundedCornerShape(percent = 100))
             )
 
             CampoTextoPersonalizado(
                 nombreCampo = "Nombre",
                 text = clienteDTO.nombre,
                 Onchage = { valor ->
-                    listaCondicionales[0] = !valor.matches("^[a-zA-ZÀ-ÿ\\s]+$".toRegex()) && valor.isNotBlank()
-                    registroViewModel.OnClienteChange(clienteDTO.copy(nombre = valor), listaCondicionales)
+                    listaCondicionales[0] = valor.isNotBlank() && !valor.matches("^[a-zA-ZÀ-ÿ\\s]+$".toRegex())
+                    registroViewModel.onClienteChange(clienteDTO.copy(nombre = valor), listaCondicionales)
                 }
             )
-
             MensajeDeError(mostrar = listaCondicionales[0], mensaje = errorMessage.nombre)
 
             CampoTextoPersonalizado(
                 nombreCampo = "DNI",
                 text = clienteDTO.dni,
-                Onchage = {
-                    registroViewModel.OnClienteChange(clienteDTO.copy(dni = it), listaCondicionales)
+                Onchage = { valor ->
+                    // Implementa validación específica del DNI si es necesario
+                    registroViewModel.onClienteChange(clienteDTO.copy(dni = valor), listaCondicionales)
                 }
             )
 
@@ -105,16 +93,17 @@ fun RegistroScreen(registroViewModel: RegistroViewModel, navController: NavContr
                 text = clienteDTO.password,
                 Onchage = { valor ->
                     listaCondicionales[1] = valor.length < 4 && valor.isNotBlank()
-                    registroViewModel.OnClienteChange(clienteDTO.copy(password = valor), listaCondicionales)
-                })
-
+                    registroViewModel.onClienteChange(clienteDTO.copy(password = valor), listaCondicionales)
+                }
+            )
             MensajeDeError(mostrar = listaCondicionales[1], mensaje = errorMessage.password)
 
             CampoTextoPersonalizado(
                 nombreCampo = "Telefono",
                 text = clienteDTO.telefono,
-                Onchage = {
-                    registroViewModel.OnClienteChange(clienteDTO.copy(telefono = it), listaCondicionales)
+                Onchage = { valor ->
+                    // Implementa validación específica del teléfono si es necesario
+                    registroViewModel.onClienteChange(clienteDTO.copy(telefono = valor), listaCondicionales)
                 }
             )
 
@@ -123,38 +112,40 @@ fun RegistroScreen(registroViewModel: RegistroViewModel, navController: NavContr
                 text = clienteDTO.email,
                 tipo = KeyboardType.Email,
                 Onchage = { valor ->
-                    listaCondicionales[2] = !Patterns.EMAIL_ADDRESS.matcher(valor).matches() && valor.isNotBlank()
-                    registroViewModel.OnClienteChange(clienteDTO.copy(email = valor), listaCondicionales)
+                    listaCondicionales[2] = valor.isNotBlank() && !Patterns.EMAIL_ADDRESS.matcher(valor).matches()
+                    registroViewModel.onClienteChange(clienteDTO.copy(email = valor), listaCondicionales)
                 }
             )
-
             MensajeDeError(mostrar = listaCondicionales[2], mensaje = errorMessage.email)
 
             CampoTextoPersonalizado(
-                nombreCampo = "direccion",
+                nombreCampo = "Dirección",
                 text = clienteDTO.direccion,
-                Onchage = {
-                    registroViewModel.OnClienteChange(clienteDTO.copy(direccion = it), listaCondicionales)
+                Onchage = { valor ->
+                    registroViewModel.onClienteChange(clienteDTO.copy(direccion = valor), listaCondicionales)
                 }
             )
 
-            TextButton(onClick = {
-                navController.navigate(Screen.Login.route)
-            }) {
+            TextButton(onClick = { navController.navigate(Screen.Login.route) }) {
                 Text("¿Ya tienes cuenta?")
             }
 
             Button(
                 onClick = {
-                    registroViewModel.OnRegistrarClick(clienteDTO)
-                    navController.navigate(Screen.Login.route)
+                    registroViewModel.registrarCliente(clienteDTO,
+                        onSuccess = {
+                            navController.navigate(Screen.Login.route)
+                        },
+                        onError = { error ->
+                            // Manejo de error
+                        }
+                    )
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 24.dp)
                     .size(51.dp),
                 enabled = estado
-
             ) {
                 Text("Registrar")
             }
@@ -163,28 +154,4 @@ fun RegistroScreen(registroViewModel: RegistroViewModel, navController: NavContr
 }
 
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    MaterialTheme {
-        AppTheme {
 
-            RegistroScreen(RegistroViewModel(), rememberNavController())
-            val navController = rememberNavController()
-            //LoginScreen(loginViewModel = LoginViewModel(), navController = navController)
-            //AppNavigation(navController = navController)
-
-            //AppNavigation()
-            /**
-             *  RegistroScreen(RegistroViewModel(), rememberNavController())
-             *  LoginScreen(LoginViewModel(),rememberNavController() )
-             */
-            /**
-             *  RegistroScreen(RegistroViewModel(), rememberNavController())
-             *  LoginScreen(LoginViewModel(),rememberNavController() )
-             */
-
-        }
-
-    }
-}

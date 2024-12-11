@@ -4,14 +4,17 @@ package com.example.loginregistro.ui.registro
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.navigation.NavBackStackEntry
+import androidx.lifecycle.viewModelScope
 import com.example.loginregistro.data.repositories.ClienteRepository
 import com.example.loginregistro.ui.errores.ErrorMessage
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import modelo.ClienteDTO
+import retrofit2.*
 
 
-class RegistroViewModel(clienteRepository: ClienteRepository) : ViewModel() {
-
+class RegistroViewModel( var clienteRepository: ClienteRepository) : ViewModel() {
 
 
     val cliente = MutableLiveData(
@@ -39,25 +42,23 @@ class RegistroViewModel(clienteRepository: ClienteRepository) : ViewModel() {
     val listaCondicionales = MutableLiveData(mutableListOf(false, false, false))
 
 
-    fun OnClienteChange(clienteDTO: ClienteDTO,listaCondicioanes:MutableList<Boolean> ) :Unit{
-
-
+    fun onClienteChange(clienteDTO: ClienteDTO, listaCondicioanes: MutableList<Boolean>): Unit {
 
         clienteDTO.let { valor ->
             listaCondicioanes.let { valor2 ->
 
-                    if (valor.nombre.isNotBlank()
-                        && valor.email.isNotBlank()
-                        && valor.password.isNotBlank()
-                        && valor.direccion.isNotBlank()
-                        && valor.telefono.isNotBlank()
-                        && valor.dni.isNotBlank() &&
-                        !valor2[0] && !valor2[1] && !valor2[2]
-                    ) {
-                        estado.value = true;
-                    } else{
-                        estado.value =  false
-                    }
+                if (valor.nombre.isNotBlank()
+                    && valor.email.isNotBlank()
+                    && valor.password.isNotBlank()
+                    && valor.direccion.isNotBlank()
+                    && valor.telefono.isNotBlank()
+                    && valor.dni.isNotBlank() &&
+                    !valor2[0] && !valor2[1] && !valor2[2]
+                ) {
+                    estado.value = true;
+                } else {
+                    estado.value = false
+                }
             }
         }
 
@@ -66,7 +67,36 @@ class RegistroViewModel(clienteRepository: ClienteRepository) : ViewModel() {
 
     }
 
-    fun OnRegistrarClick(cliente:ClienteDTO) {
+    fun registrarCliente(
+        clienteActual: ClienteDTO,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val result = clienteRepository.tareaRegistrarCliente(clienteActual)
+                withContext(Dispatchers.IO) {
+                    result.fold(
+                        onSuccess = {
+                            cliente.value = it
+                            onSuccess()
+                        },
+                        onFailure = { error ->
+                            onError(error.message ?: "Unknown error")
+                        }
+                    )
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Default) {
+                    onError("Exception: ${e.message}")
+                }
+            }
+        }
+    }
+
+
+
+    fun onRegistrarClick(cliente: ClienteDTO) {
         Log.d("Registro", "Objeto Registro: $cliente")
     }
 }
