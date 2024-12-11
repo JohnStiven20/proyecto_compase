@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -30,14 +29,11 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.compose.AppTheme
 import com.example.loginregistro.R
-import com.example.loginregistro.ui.componentes.AppNavigation
-import com.example.loginregistro.ui.componentes.CampoTextoPassword
-import com.example.loginregistro.ui.componentes.CampoTextoPersonalizado
-import com.example.loginregistro.ui.componentes.MensajeDeError
-import com.example.loginregistro.ui.componentes.Screen
+import com.example.loginregistro.data.componentes.CampoTextoPassword
+import com.example.loginregistro.data.componentes.CampoTextoPersonalizado
+import com.example.loginregistro.data.componentes.MensajeDeError
+import com.example.loginregistro.navigation.Screen
 import com.example.loginregistro.ui.errores.ErrorMessage
-import com.example.loginregistro.ui.login.LoginScreen
-import com.example.loginregistro.ui.login.LoginViewModel
 import modelo.ClienteDTO
 
 
@@ -142,7 +138,11 @@ fun RegistroScreen(registroViewModel: RegistroViewModel, navController: NavContr
                 }
             )
 
-
+            TextButton(onClick = {
+                navController.navigate(Screen.Login.route)
+            }) {
+                Text("¿Ya tienes cuenta?")
+            }
 
             Button(
                 onClick = {
@@ -169,11 +169,10 @@ fun GreetingPreview() {
     MaterialTheme {
         AppTheme {
 
-            //HomeScreen(HomeViewModel())
-
+            RegistroScreen(RegistroViewModel(), rememberNavController())
             val navController = rememberNavController()
             //LoginScreen(loginViewModel = LoginViewModel(), navController = navController)
-            AppNavigation(navController = navController)
+            //AppNavigation(navController = navController)
 
             //AppNavigation()
             /**

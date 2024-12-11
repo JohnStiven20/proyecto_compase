@@ -3,10 +3,16 @@ package com.example.loginregistro.ui.login
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.loginregistro.ui.data.modelo.LoginDTO
+import androidx.lifecycle.viewModelScope
+import com.example.loginregistro.data.modelo.LoginDTO
+import com.example.loginregistro.data.repositories.ClienteRepository
 import com.example.loginregistro.ui.errores.ErrorMessage
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
-class LoginViewModel : ViewModel() {
+
+class LoginViewModel(clienteRepository: ClienteRepository) : ViewModel() {
 
     val login = MutableLiveData(
         LoginDTO(
@@ -51,8 +57,16 @@ class LoginViewModel : ViewModel() {
         Log.d("Logear", "Objeto Login: $login")
     }
 
-    fun OnChagelistaCondicionales(listConditional: MutableList<Boolean>) {
-        this.listaCondicionales.value = listConditional
+     suspend fun esperarCincoSegundos() {
+        Log.d("Hilos", "Hilo principal bloqueado durante cincos segundos")
+        delay(5000)
+        Log.d("Hilos  ", "Fin del bloqueo ")
+    }
+
+     fun onLoginClick(){
+        viewModelScope.launch(Dispatchers.IO) {
+            esperarCincoSegundos()
+        }
     }
 
 }

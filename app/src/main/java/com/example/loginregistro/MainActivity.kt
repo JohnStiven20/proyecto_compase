@@ -9,7 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import com.example.compose.AppTheme
-import com.example.loginregistro.ui.componentes.AppNavigation
+import com.example.loginregistro.navigation.AppNavigation
 
 
 

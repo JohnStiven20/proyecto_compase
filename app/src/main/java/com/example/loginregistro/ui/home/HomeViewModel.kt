@@ -3,8 +3,8 @@ package com.example.loginregistro.ui.home
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.loginregistro.ui.data.modelo.ProductoDTO
-import com.example.loginregistro.ui.data.modelo.Tipo
+import com.example.loginregistro.data.modelo.ProductoDTO
+import com.example.loginregistro.data.modelo.Tipo
 import modelo.EstadoPedido
 import modelo.IngredienteDTO
 import modelo.LineaPedidoDTO

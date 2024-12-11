@@ -1,4 +1,4 @@
-package com.example.loginregistro.ui.componentes
+package com.example.loginregistro.data.componentes
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Spacer

@@ -1,6 +1,6 @@
 package modelo
 
-import com.example.loginregistro.ui.data.modelo.ProductoDTO
+import com.example.loginregistro.data.modelo.ProductoDTO
 
 data class LineaPedidoDTO(
 

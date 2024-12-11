@@ -68,9 +68,9 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.compose.AppTheme
 import com.example.loginregistro.R
-import com.example.loginregistro.ui.componentes.Screen
-import com.example.loginregistro.ui.data.modelo.ProductoDTO
-import com.example.loginregistro.ui.data.modelo.Tipo
+import com.example.loginregistro.data.modelo.ProductoDTO
+import com.example.loginregistro.data.modelo.Tipo
+import com.example.loginregistro.navigation.Screen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import modelo.Size
@@ -399,6 +399,7 @@ fun LogoImage() {
 @ExperimentalMaterial3Api
 @Composable
 fun TopBar(contadorCarrito: Int, drawerState: DrawerState, scope: CoroutineScope) {
+
     TopAppBar(
         title = { Text(text = "Pizzería") },
         navigationIcon = {

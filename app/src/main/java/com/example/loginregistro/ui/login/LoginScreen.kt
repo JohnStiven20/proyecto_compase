@@ -31,11 +31,10 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.compose.AppTheme
 import com.example.loginregistro.R
-import com.example.loginregistro.ui.componentes.CampoTextoPassword
-import com.example.loginregistro.ui.componentes.CampoTextoPersonalizado
-import com.example.loginregistro.ui.componentes.Screen
-import com.example.loginregistro.ui.data.modelo.LoginDTO
-import com.example.loginregistro.ui.errores.ErrorMessage
+import com.example.loginregistro.data.componentes.CampoTextoPassword
+import com.example.loginregistro.data.componentes.CampoTextoPersonalizado
+import com.example.loginregistro.data.modelo.LoginDTO
+import com.example.loginregistro.navigation.Screen
 
 
 @Composable
@@ -103,7 +102,7 @@ fun LoginScreen(loginViewModel: LoginViewModel, navController: NavController) {
            // MensajeDeError(mostrar = listaCondicionales[1], mensaje = errorMessage.password)
 
             TextButton(onClick = { navController.navigate(Screen.Registro.route)}) {
-                Text(text = "¿Quiere registrarse aqui?")
+                Text(text = "Iniciar sesion")
             }
 
 
@@ -111,6 +110,7 @@ fun LoginScreen(loginViewModel: LoginViewModel, navController: NavController) {
                 onClick = {
                     loginViewModel.OnRegistrarClick(loginDTO)
                     navController.navigate(Screen.Home.route)
+                    loginViewModel.onLoginClick()
                 },
                 modifier = Modifier
                     .fillMaxWidth()

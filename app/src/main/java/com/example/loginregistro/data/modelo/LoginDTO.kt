@@ -1,4 +1,4 @@
-package com.example.loginregistro.ui.data.modelo
+package com.example.loginregistro.data.modelo
 
 data class LoginDTO (
 

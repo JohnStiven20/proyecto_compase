@@ -4,11 +4,15 @@ package com.example.loginregistro.ui.registro
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.loginregistro.ui.data.modelo.LoginDTO
+import androidx.navigation.NavBackStackEntry
+import com.example.loginregistro.data.repositories.ClienteRepository
 import com.example.loginregistro.ui.errores.ErrorMessage
 import modelo.ClienteDTO
 
-class RegistroViewModel : ViewModel() {
+
+class RegistroViewModel(clienteRepository: ClienteRepository) : ViewModel() {
+
+
 
     val cliente = MutableLiveData(
         ClienteDTO(
@@ -20,6 +24,7 @@ class RegistroViewModel : ViewModel() {
             direccion = ""
         )
     )
+
 
     val errorMessage =
         MutableLiveData(
@@ -35,6 +40,8 @@ class RegistroViewModel : ViewModel() {
 
 
     fun OnClienteChange(clienteDTO: ClienteDTO,listaCondicioanes:MutableList<Boolean> ) :Unit{
+
+
 
         clienteDTO.let { valor ->
             listaCondicioanes.let { valor2 ->
@@ -52,7 +59,6 @@ class RegistroViewModel : ViewModel() {
                         estado.value =  false
                     }
             }
-
         }
 
         cliente.value = clienteDTO;
