@@ -1,5 +1,6 @@
 package com.example.loginregistro.ui.login
 
+import android.util.Log
 import android.util.Patterns
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -20,6 +21,9 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,8 +37,11 @@ import com.example.compose.AppTheme
 import com.example.loginregistro.R
 import com.example.loginregistro.data.componentes.CampoTextoPassword
 import com.example.loginregistro.data.componentes.CampoTextoPersonalizado
+import com.example.loginregistro.data.componentes.MensajeDeError
 import com.example.loginregistro.data.modelo.LoginDTO
 import com.example.loginregistro.navigation.Screen
+import com.example.loginregistro.ui.errores.ErrorMessage
+import modelo.ClienteDTO
 
 
 @Composable
@@ -43,14 +50,9 @@ fun LoginScreen(loginViewModel: LoginViewModel, navController: NavController) {
 
     val loginDTO: LoginDTO by loginViewModel.login.observeAsState(LoginDTO(email = "", password = ""))
     val estado: Boolean by loginViewModel.estado.observeAsState(false)
-    //val errorMessage: ErrorMessage by loginViewModel.errorMessage.observeAsState(ErrorMessage())
+    val clienteDTO by loginViewModel.cliente.observeAsState(ClienteDTO(email = "algo"))
+    var existo by rememberSaveable { mutableStateOf(false) }
 
-    val listaCondicionales by loginViewModel.listaCondicionales.observeAsState(
-        mutableListOf(
-            false,
-            false
-        )
-    )
 
     LazyColumn(
         modifier = Modifier
@@ -82,35 +84,31 @@ fun LoginScreen(loginViewModel: LoginViewModel, navController: NavController) {
                 nombreCampo = "gmail",
                 text = loginDTO.email,
                 tipo = KeyboardType.Email,
-                Onchage = { valor ->
-                    listaCondicionales[0] = !Patterns.EMAIL_ADDRESS.matcher(valor).matches() && valor.isNotBlank()
-                    loginViewModel.OnClienteChange(loginDTO.copy(email = valor))
-                    //loginViewModel.OnChagelistaCondicionales(listaCondicionales)
-                }
+                Onchage = {loginViewModel.onLoginDTOChange(loginDTO.copy(email = it))}
             )
 
-            //MensajeDeError(mostrar = listaCondicionales[0], mensaje = errorMessage.email)
+            MensajeDeError(mostrar = existo, mensaje = "el correo esta mal")
 
             CampoTextoPassword(
                 text = loginDTO.password,
-                Onchage = { valor ->
-                    listaCondicionales[1] = valor.length < 4 && valor.isNotBlank()
-                    loginViewModel.OnClienteChange(loginDTO.copy(password = valor))
-                    //loginViewModel.OnChagelistaCondicionales(listaCondicionales)
-                })
+                Onchage = {loginViewModel.onLoginDTOChange(loginDTO.copy(password = it))})
 
-           // MensajeDeError(mostrar = listaCondicionales[1], mensaje = errorMessage.password)
+            MensajeDeError(mostrar = existo, mensaje = "La contraseña esta mal")
 
             TextButton(onClick = { navController.navigate(Screen.Registro.route)}) {
                 Text(text = "Iniciar sesion")
             }
 
-
             Button(
                 onClick = {
-                    loginViewModel.OnRegistrarClick(loginDTO)
-                    navController.navigate(Screen.Home.route)
                     loginViewModel.onLoginClick()
+                    Log.d("AAAD", "${clienteDTO}")
+                    if (clienteDTO?.email == loginDTO.email && clienteDTO?.password != loginDTO.password )  {
+                        navController.navigate(Screen.Home.route)
+                    } else {
+                        existo = true
+
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -130,13 +128,6 @@ fun LoginScreen(loginViewModel: LoginViewModel, navController: NavController) {
 fun GreetingPreview() {
     MaterialTheme {
         AppTheme {
-
-            //HomeScreen(HomeViewModel())
-
-            val navController = rememberNavController()
-            //LoginScreen(loginViewModel = LoginViewModel(), navController = navController)
-            //AppNavigation(navController = navController)
-
 
         }
     }

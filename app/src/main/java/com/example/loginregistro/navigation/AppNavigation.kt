@@ -28,7 +28,7 @@ fun AppNavigation(navController:  NavHostController) {
     val clienteRepository = ClienteRepository(apiService = clienteApiService)
     val productoRepositoty = ProductoRepositoty()
 
-    NavHost(navController = navController, startDestination = Screen.Home.route) {
+    NavHost(navController = navController, startDestination = Screen.Registro.route) {
 
         composable (
             route = Screen.Registro.route,

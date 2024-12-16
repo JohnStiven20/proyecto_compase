@@ -81,6 +81,7 @@ import modelo.Size
 fun HomeScreen(homeViewModel: HomeViewModel, navController: NavController) {
 
     val screens: MutableList<Screen> = mutableListOf(Screen.Home)
+
     val productos by homeViewModel.productosLiveData.observeAsState(mutableListOf())
     val contadorCarrito = homeViewModel.contadorCarritoLiveData.observeAsState(0).value ?: 0
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -402,6 +403,7 @@ fun TopBar(contadorCarrito: Int, drawerState: DrawerState, scope: CoroutineScope
 
     TopAppBar(
         title = { Text(text = "Pizzería") },
+
         navigationIcon = {
             TextButton(onClick = {
                 if (drawerState.isOpen) {

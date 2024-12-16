@@ -67,32 +67,50 @@ class RegistroViewModel( var clienteRepository: ClienteRepository) : ViewModel()
 
     }
 
-    fun registrarCliente(
-        clienteActual: ClienteDTO,
-        onSuccess: () -> Unit,
-        onError: (String) -> Unit
-    ) {
-        viewModelScope.launch(Dispatchers.IO) {
+    fun registrarCliente(cliente: ClienteDTO, onSuccess: () -> Unit, onError: (String) -> Unit) {
+
+        viewModelScope.launch(Dispatchers.IO)
+
+        {
             try {
-                val result = clienteRepository.tareaRegistrarCliente(clienteActual)
-                withContext(Dispatchers.IO) {
-                    result.fold(
-                        onSuccess = {
-                            cliente.value = it
-                            onSuccess()
-                        },
-                        onFailure = { error ->
-                            onError(error.message ?: "Unknown error")
-                        }
-                    )
+                val response = clienteRepository.registrarCliente(cliente)
+
+                if (response.isSuccess) {
+                    onSuccess() // Llamamos a la función de éxito (puede actualizar la UI, etc.)
+                } else {
+                    onError("Error: ${response.getOrThrow()}") // Pasamos el mensaje de error
                 }
             } catch (e: Exception) {
-                withContext(Dispatchers.Default) {
-                    onError("Exception: ${e.message}")
+                onError("Exception: ${e.message}")
+            }
+        }
+    }
+
+
+
+    fun onRegistrarClick() {
+        val clienteActual = cliente.value
+
+        if (clienteActual != null) {
+            viewModelScope.launch {
+
+                val result = clienteRepository.registrarCliente(clienteActual)
+                withContext(Dispatchers.Main) {
+
+                    when (result.isSuccess) {
+                        true -> {
+                            cliente.value = result.getOrThrow()
+                        }
+                        false -> {
+                            Log.d("REGISTRO", "Error:$result")
+                        }
+                    }
                 }
             }
         }
     }
+
+
 
 
 

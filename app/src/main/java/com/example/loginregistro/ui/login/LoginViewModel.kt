@@ -10,9 +10,11 @@ import com.example.loginregistro.ui.errores.ErrorMessage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import modelo.ClienteDTO
 
 
-class LoginViewModel(clienteRepository: ClienteRepository) : ViewModel() {
+class LoginViewModel(val clienteRepository: ClienteRepository) : ViewModel() {
 
     val login = MutableLiveData(
         LoginDTO(
@@ -20,6 +22,8 @@ class LoginViewModel(clienteRepository: ClienteRepository) : ViewModel() {
             password = ""
         )
     )
+
+    val cliente = MutableLiveData(ClienteDTO())
 
     val estado = MutableLiveData(false)
 
@@ -33,40 +37,47 @@ class LoginViewModel(clienteRepository: ClienteRepository) : ViewModel() {
             )
         )
 
-    fun OnClienteChange(loginDTO: LoginDTO): Unit {
+    fun onLoginDTOChange(login: LoginDTO) {
 
-        login.value = loginDTO;
+        if (login.password.isNotBlank() && login.email.isNotBlank()) {
+            estado.value = true
+        } else {
+            estado.value = false
+        }
 
-        login.value?.let { valor ->
-            listaCondicionales.value?.let { valor2 ->
+        this.login.value = login
 
-                if (valor.email.isNotBlank()
-                    && valor.password.isNotBlank()
-                    && !valor2[0] && !valor2[1]
-                ) {
-                    estado.value = true;
-                } else {
-                    estado.value = false
+    }
+
+    fun onLoginClick() {
+        val loginDTO = login.value
+        if (loginDTO != null) {
+
+            viewModelScope.launch {
+                val result = clienteRepository.loginCliente(loginDTO)
+
+                withContext(Dispatchers.Main) {
+
+                    when (result.isSuccess) {
+                        true -> {
+                            cliente.value = result.getOrNull()
+                            Log.d("Login exitoso:", "${cliente.value}")
+
+                        }
+                        false -> {
+                            Log.d("REGISTRO", "Error:$result")
+                        }
+                    }
                 }
             }
         }
     }
 
 
-    fun OnRegistrarClick(login: LoginDTO) {
+
+
+    fun onRegistrarClick(login: LoginDTO) {
         Log.d("Logear", "Objeto Login: $login")
-    }
-
-     suspend fun esperarCincoSegundos() {
-        Log.d("Hilos", "Hilo principal bloqueado durante cincos segundos")
-        delay(5000)
-        Log.d("Hilos  ", "Fin del bloqueo ")
-    }
-
-     fun onLoginClick(){
-        viewModelScope.launch(Dispatchers.IO) {
-            esperarCincoSegundos()
-        }
     }
 
 }

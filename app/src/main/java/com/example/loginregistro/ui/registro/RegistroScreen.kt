@@ -132,14 +132,8 @@ fun RegistroScreen(registroViewModel: RegistroViewModel, navController: NavContr
 
             Button(
                 onClick = {
-                    registroViewModel.registrarCliente(clienteDTO,
-                        onSuccess = {
-                            navController.navigate(Screen.Login.route)
-                        },
-                        onError = { error ->
-                            // Manejo de error
-                        }
-                    )
+                    registroViewModel.onRegistrarClick()
+                    navController.navigate(Screen.Login.route)
                 },
                 modifier = Modifier
                     .fillMaxWidth()

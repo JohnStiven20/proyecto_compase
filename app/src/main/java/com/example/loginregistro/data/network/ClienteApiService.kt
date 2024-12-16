@@ -11,9 +11,9 @@ import retrofit2.http.PUT
 interface ClienteApiService {
 
     @POST("/clientes/registro")
-    suspend fun registrarCliente(@Body cliente: ClienteDTO):  Response<ClienteDTO>
+    suspend fun registrarCliente(@Body cliente: ClienteDTO):  ClienteDTO
     @POST("/clientes/login")
-    suspend fun loginCliente(@Body loginDTO: LoginDTO): Response<ClienteDTO>
+    suspend fun loginCliente(@Body loginDTO: LoginDTO): ClienteDTO
     @PUT("/clientes/actualizar")
     suspend fun actualizarCliente(@Body cliente: ClienteDTO): Response<ClienteDTO>
     @GET("/clientes")
