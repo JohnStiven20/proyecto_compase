@@ -1,5 +1,6 @@
 package com.example.loginregistro.ui.home
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -30,6 +31,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.DropdownMenu
@@ -62,11 +64,8 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import com.example.compose.AppTheme
 import com.example.loginregistro.R
 import com.example.loginregistro.data.modelo.ProductoDTO
 import com.example.loginregistro.data.modelo.Tipo
@@ -86,8 +85,8 @@ fun HomeScreen(homeViewModel: HomeViewModel, navController: NavController) {
     val contadorCarrito = homeViewModel.contadorCarritoLiveData.observeAsState(0).value ?: 0
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    val loading by homeViewModel.loading.observeAsState(false)
 
-    homeViewModel.getProductos()
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -105,14 +104,27 @@ fun HomeScreen(homeViewModel: HomeViewModel, navController: NavController) {
                 TopBar(contadorCarrito, drawerState, scope)
             },
             content = { paddingValues ->
-                Body(
-                    productos = productos,
-                    paddingValues = paddingValues,
-                    homeViewModel = homeViewModel
-                )
+
+                if (loading) {
+                    Column(
+                        Modifier.fillMaxSize().background(color = MaterialTheme.colorScheme.outline),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.width(64.dp),
+                            color = MaterialTheme.colorScheme.secondary,
+                            trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                        )                    }
+                } else {
+                    Body(
+                        productos = productos,
+                        paddingValues = paddingValues,
+                        homeViewModel = homeViewModel
+                    )
+                }
 
             }
-
         )
     }
 }
@@ -125,20 +137,20 @@ fun Body(
 
 ) {
 
-    val pizzas = productos.filter { it.tipo == Tipo.PIZZA }
-    val pastas = productos.filter { it.tipo == Tipo.PASTA }
-    val bebidas = productos.filter { it.tipo == Tipo.BEBIDA }
+
+    val pizzas = productos.filter { it.tipo == "pizza"}
+    val pastas = productos.filter { it.tipo == "pasta" }
+    val bebidas = productos.filter { it.tipo == "bebida"}
 
     LazyColumn(
         modifier = Modifier
-            .fillMaxSize()
-            .systemBarsPadding()
-            .background(MaterialTheme.colorScheme.outline)
-            .padding(paddingValues),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+            .fillMaxSize().padding(paddingValues)
+            .background(MaterialTheme.colorScheme.outline),
 
-    ) {
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+
+        ) {
 
         item {
             LogoImage()
@@ -187,7 +199,7 @@ fun ProductCarousel(
     productos: List<ProductoDTO>,
     imagenProducto: Painter = painterResource(R.drawable.fotopizza),
     tituloSeccion: String = "",
-    onAddCar: (Int, Size, ProductoDTO) -> Unit
+    onAddCar: (Int, String, ProductoDTO) -> Unit
 ) {
 
     Text(text = tituloSeccion)
@@ -210,12 +222,13 @@ fun ProductCarousel(
 fun ProductCard(
     imagenProducto: Painter = painterResource(R.drawable.fotopizza),
     producto: ProductoDTO = ProductoDTO(),
-    onAddCar: (Int, Size, ProductoDTO) -> Unit
+    onAddCar: (Int, String, ProductoDTO) -> Unit
 ) {
 
-    val ingredientes: String = producto.listaIngredienteDTO.joinToString { it.nombre }
+    val ingredientes: String = producto.ingredientes.joinToString { it.nombre }
+    Log.d("Lista", "A $ingredientes")
     var cantidad by rememberSaveable { mutableIntStateOf(1) }
-    var sizeProducto by rememberSaveable { mutableStateOf(Size.GRANDE) }
+    var sizeProducto by rememberSaveable { mutableStateOf("Size.GRANDE") }
     var botonHabilitado by rememberSaveable { mutableStateOf(false) }
     var contexto = LocalContext.current
 
@@ -318,7 +331,7 @@ fun ProductCard(
 
                 sizeProducto = MenuPizzeria()
 
-                botonHabilitado = sizeProducto != Size.NADA
+                botonHabilitado = sizeProducto != "NADA"
             }
         }
     }
@@ -326,11 +339,11 @@ fun ProductCard(
 
 
 @Composable
-fun MenuPizzeria(): Size {
+fun MenuPizzeria(): String {
 
     var expanded by rememberSaveable { mutableStateOf(false) }
     var texto by rememberSaveable { mutableStateOf("selecciona tamaño") }
-    var tipo by rememberSaveable { mutableStateOf(Size.NADA) }
+    var tipo by rememberSaveable { mutableStateOf("") }
 
     Column(modifier = Modifier.fillMaxSize(), Arrangement.Center, Alignment.CenterHorizontally) {
 
@@ -344,7 +357,7 @@ fun MenuPizzeria(): Size {
                 onClick = {
                     expanded = false
                     texto = "Grande"
-                    tipo = Size.GRANDE
+                    tipo = "GRANDE"
                 },
             )
 
@@ -353,7 +366,7 @@ fun MenuPizzeria(): Size {
                 onClick = {
                     expanded = false
                     texto = "Mediano"
-                    tipo = Size.MEDIANO
+                    tipo = "MEDIANA"
 
                 },
             )
@@ -363,7 +376,7 @@ fun MenuPizzeria(): Size {
                 onClick = {
                     expanded = false
                     texto = "Enano"
-                    tipo = Size.ENANA
+                    tipo = "ENANA"
                 },
             )
 
@@ -372,7 +385,7 @@ fun MenuPizzeria(): Size {
                 onClick = {
                     expanded = false
                     texto = "selecciona tamaño"
-                    tipo = Size.NADA
+                    tipo = "NADA"
                 },
             )
         }
@@ -537,7 +550,7 @@ fun CerrarSesion(navController: NavController, drawerState: DrawerState, scope: 
             },
             dismissButton = {
                 TextButton(onClick = {
-                    scope.launch { drawerState.close()}
+                    scope.launch { drawerState.close() }
                     showDialog = false
                 }) {
                     Text("No")
