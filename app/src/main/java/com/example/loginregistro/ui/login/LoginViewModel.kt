@@ -26,16 +26,26 @@ class LoginViewModel(val clienteRepository: ClienteRepository) : ViewModel() {
     val cliente = MutableLiveData(ClienteDTO())
 
     val estado = MutableLiveData(false)
+    val existoso = MutableLiveData(false)
 
-    val listaCondicionales = MutableLiveData(mutableListOf(false, false))
+    fun registrarCliente(cliente: ClienteDTO, onSuccess: () -> Unit, onError: (String) -> Unit) {
 
-    val errorMessage =
-        MutableLiveData(
-            ErrorMessage(
-                nombre = "El numero no puede contener numeros",
-                email = "El formato incorrecto"
-            )
-        )
+        viewModelScope.launch(Dispatchers.IO)
+
+        {
+            try {
+                val response = clienteRepository.registrarCliente(cliente)
+
+                if (response.isSuccess) {
+                    onSuccess()
+                } else {
+                    onError("Error: ${response.getOrThrow()}") // Pasamos el mensaje de error
+                }
+            } catch (e: Exception) {
+                onError("Exception: ${e.message}")
+            }
+        }
+    }
 
     fun onLoginDTOChange(login: LoginDTO) {
 
@@ -49,23 +59,25 @@ class LoginViewModel(val clienteRepository: ClienteRepository) : ViewModel() {
 
     }
 
-    fun onLoginClick() {
+    fun onLoginClick(onSuccess: (Boolean) -> Unit) {
         val loginDTO = login.value
+        existoso.value = true
         if (loginDTO != null) {
-
             viewModelScope.launch {
                 val result = clienteRepository.loginCliente(loginDTO)
-
                 withContext(Dispatchers.Main) {
 
                     when (result.isSuccess) {
                         true -> {
-                            cliente.value = result.getOrNull()
-                            Log.d("Login exitoso:", "${cliente.value}")
-
+                            cliente.value = result.getOrThrow()
+                            Log.d("Login Malo", "VIA españa Error:$cliente")
+                            onSuccess(true)
+                            existoso.value = false
                         }
                         false -> {
-                            Log.d("REGISTRO", "Error:$result")
+                            onSuccess(false)
+                            existoso.value = false
+                            Log.d("Login Malo", "VIA FRANCIA Error:$result")
                         }
                     }
                 }

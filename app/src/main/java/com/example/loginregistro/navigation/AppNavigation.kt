@@ -24,9 +24,10 @@ fun AppNavigation(navController:  NavHostController) {
 
 
     val clienteApiService = Retrofitinstance.clienteApi
+    val productoApiService = Retrofitinstance.ProductoApi
 
     val clienteRepository = ClienteRepository(apiService = clienteApiService)
-    val productoRepositoty = ProductoRepositoty()
+    val productoRepositoty = ProductoRepositoty(apiService = productoApiService)
 
     NavHost(navController = navController, startDestination = Screen.Registro.route) {
 

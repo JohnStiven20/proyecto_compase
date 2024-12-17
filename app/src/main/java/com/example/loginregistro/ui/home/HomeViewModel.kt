@@ -3,9 +3,13 @@ package com.example.loginregistro.ui.home
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.loginregistro.data.modelo.ProductoDTO
 import com.example.loginregistro.data.modelo.Tipo
 import com.example.loginregistro.data.repositories.ProductoRepositoty
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import modelo.EstadoPedido
 import modelo.IngredienteDTO
 import modelo.LineaPedidoDTO
@@ -13,7 +17,7 @@ import modelo.PedidoDTO
 import modelo.Size
 import java.util.Date
 
-class HomeViewModel(productoRepositoty: ProductoRepositoty) : ViewModel() {
+class HomeViewModel(val productoRepositoty: ProductoRepositoty) : ViewModel() {
 
     val productosLiveData = MutableLiveData(generarListaProductos())
 
@@ -62,6 +66,24 @@ class HomeViewModel(productoRepositoty: ProductoRepositoty) : ViewModel() {
 
         Log.d("Pedido" , "${pedidoLiveData.value}")
 
+    }
+
+    fun getProductos(onSucess:()-> Unit) {
+        viewModelScope.launch {
+            withContext(Dispatchers.Main) {
+                val result = productoRepositoty.getProductos()
+                when(result.isSuccess){
+                    true -> {
+                        onSucess()
+                        productosLiveData.value = result.getOrNull()
+                    }
+                    false ->  {
+                        Log.d("Login Malo", "VIA FRANCIA Error:$result")
+                    }
+
+                }
+            }
+        }
     }
 
 

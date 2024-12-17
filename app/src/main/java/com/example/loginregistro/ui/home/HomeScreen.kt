@@ -87,6 +87,8 @@ fun HomeScreen(homeViewModel: HomeViewModel, navController: NavController) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
+    homeViewModel.getProductos()
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {

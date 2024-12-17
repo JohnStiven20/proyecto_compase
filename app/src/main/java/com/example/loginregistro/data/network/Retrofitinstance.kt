@@ -1,5 +1,6 @@
 package com.example.loginregistro.data.network
 
+import com.example.loginregistro.data.repositories.ProductoRepositoty
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -17,5 +18,9 @@ object Retrofitinstance {
 
     val clienteApi: ClienteApiService by lazy {
         retrofit.create(ClienteApiService::class.java)
+    }
+
+    val ProductoApi: ProductoApiService by lazy {
+        retrofit.create(ProductoApiService::class.java)
     }
 }

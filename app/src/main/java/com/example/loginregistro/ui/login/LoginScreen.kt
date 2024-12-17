@@ -1,7 +1,6 @@
 package com.example.loginregistro.ui.login
 
 import android.util.Log
-import android.util.Patterns
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -15,6 +14,7 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -29,18 +29,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import com.example.compose.AppTheme
 import com.example.loginregistro.R
 import com.example.loginregistro.data.componentes.CampoTextoPassword
 import com.example.loginregistro.data.componentes.CampoTextoPersonalizado
 import com.example.loginregistro.data.componentes.MensajeDeError
 import com.example.loginregistro.data.modelo.LoginDTO
 import com.example.loginregistro.navigation.Screen
-import com.example.loginregistro.ui.errores.ErrorMessage
 import modelo.ClienteDTO
 
 
@@ -48,11 +44,17 @@ import modelo.ClienteDTO
 fun LoginScreen(loginViewModel: LoginViewModel, navController: NavController) {
 
 
-    val loginDTO: LoginDTO by loginViewModel.login.observeAsState(LoginDTO(email = "", password = ""))
+    val loginDTO: LoginDTO by loginViewModel.login.observeAsState(
+        LoginDTO(
+            email = "",
+            password = ""
+        )
+    )
     val estado: Boolean by loginViewModel.estado.observeAsState(false)
     val clienteDTO by loginViewModel.cliente.observeAsState(ClienteDTO(email = "algo"))
     var existo by rememberSaveable { mutableStateOf(false) }
-
+    val existoso by loginViewModel.existoso.observeAsState(false)
+    var variableLocal by rememberSaveable { mutableStateOf(false)}
 
     LazyColumn(
         modifier = Modifier
@@ -84,31 +86,37 @@ fun LoginScreen(loginViewModel: LoginViewModel, navController: NavController) {
                 nombreCampo = "gmail",
                 text = loginDTO.email,
                 tipo = KeyboardType.Email,
-                Onchage = {loginViewModel.onLoginDTOChange(loginDTO.copy(email = it))}
+                Onchage = { loginViewModel.onLoginDTOChange(loginDTO.copy(email = it)) }
             )
 
             MensajeDeError(mostrar = existo, mensaje = "el correo esta mal")
 
             CampoTextoPassword(
                 text = loginDTO.password,
-                Onchage = {loginViewModel.onLoginDTOChange(loginDTO.copy(password = it))})
+                Onchage = { loginViewModel.onLoginDTOChange(loginDTO.copy(password = it)) })
 
             MensajeDeError(mostrar = existo, mensaje = "La contraseña esta mal")
 
-            TextButton(onClick = { navController.navigate(Screen.Registro.route)}) {
+            TextButton(onClick = { navController.navigate(Screen.Registro.route) }) {
                 Text(text = "Iniciar sesion")
             }
 
             Button(
                 onClick = {
-                    loginViewModel.onLoginClick()
-                    Log.d("AAAD", "${clienteDTO}")
-                    if (clienteDTO?.email == loginDTO.email && clienteDTO?.password != loginDTO.password )  {
-                        navController.navigate(Screen.Home.route)
-                    } else {
-                        existo = true
+                    loginViewModel.onLoginClick(onSuccess = { progress ->
 
-                    }
+                        if (progress) {
+                            Log.d("Login Malo", "Error:$clienteDTO")
+                            if (loginDTO.email == clienteDTO.email && loginDTO.password == clienteDTO.password) {
+                                Log.d("Login Malo", "Error:$clienteDTO")
+                                navController.navigate(Screen.Home.route)
+                            } else {
+                                Log.d("Login Malo", "Error:$clienteDTO")
+                            }
+                        } else {
+                            existo = true
+                        }
+                    })
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -119,16 +127,13 @@ fun LoginScreen(loginViewModel: LoginViewModel, navController: NavController) {
             ) {
                 Text("Login")
             }
-        }
-    }
-}
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    MaterialTheme {
-        AppTheme {
+             if (existoso) {
+                CircularProgressIndicator()
+             }
+
 
         }
     }
 }
+
