@@ -1,6 +1,5 @@
 package com.example.loginregistro.ui.home
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -17,7 +16,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -68,11 +66,9 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.loginregistro.R
 import com.example.loginregistro.data.modelo.ProductoDTO
-import com.example.loginregistro.data.modelo.Tipo
 import com.example.loginregistro.navigation.Screen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import modelo.Size
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -80,7 +76,6 @@ import modelo.Size
 fun HomeScreen(homeViewModel: HomeViewModel, navController: NavController) {
 
     val screens: MutableList<Screen> = mutableListOf(Screen.Home)
-
     val productos by homeViewModel.productosLiveData.observeAsState(mutableListOf())
     val contadorCarrito = homeViewModel.contadorCarritoLiveData.observeAsState(0).value ?: 0
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -105,9 +100,11 @@ fun HomeScreen(homeViewModel: HomeViewModel, navController: NavController) {
             },
             content = { paddingValues ->
 
-                if (loading) {
+                if (productos.isNotEmpty() && loading) {
                     Column(
-                        Modifier.fillMaxSize().background(color = MaterialTheme.colorScheme.outline),
+                        Modifier
+                            .fillMaxSize()
+                            .background(color = MaterialTheme.colorScheme.outline),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
@@ -115,13 +112,15 @@ fun HomeScreen(homeViewModel: HomeViewModel, navController: NavController) {
                             modifier = Modifier.width(64.dp),
                             color = MaterialTheme.colorScheme.secondary,
                             trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                        )                    }
+                        )
+                    }
                 } else {
                     Body(
                         productos = productos,
                         paddingValues = paddingValues,
                         homeViewModel = homeViewModel
                     )
+
                 }
 
             }
@@ -138,13 +137,14 @@ fun Body(
 ) {
 
 
-    val pizzas = productos.filter { it.tipo == "pizza"}
+    val pizzas = productos.filter { it.tipo == "pizza" }
     val pastas = productos.filter { it.tipo == "pasta" }
-    val bebidas = productos.filter { it.tipo == "bebida"}
+    val bebidas = productos.filter { it.tipo == "bebida" }
 
     LazyColumn(
         modifier = Modifier
-            .fillMaxSize().padding(paddingValues)
+            .fillMaxSize()
+            .padding(paddingValues)
             .background(MaterialTheme.colorScheme.outline),
 
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -226,11 +226,10 @@ fun ProductCard(
 ) {
 
     val ingredientes: String = producto.ingredientes.joinToString { it.nombre }
-    Log.d("Lista", "A $ingredientes")
     var cantidad by rememberSaveable { mutableIntStateOf(1) }
     var sizeProducto by rememberSaveable { mutableStateOf("Size.GRANDE") }
     var botonHabilitado by rememberSaveable { mutableStateOf(false) }
-    var contexto = LocalContext.current
+    val contexto = LocalContext.current
 
 
     Card(

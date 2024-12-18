@@ -1,33 +1,32 @@
 package com.example.loginregistro.ui.home
 
 import android.util.Log
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.loginregistro.data.modelo.ProductoDTO
-import com.example.loginregistro.data.modelo.Tipo
-import com.example.loginregistro.data.repositories.ProductoRepositoty
+import com.example.loginregistro.data.repositories.ProductRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import modelo.EstadoPedido
-import modelo.IngredienteDTO
 import modelo.LineaPedidoDTO
 import modelo.PedidoDTO
-import modelo.Size
 import java.util.Date
 
-class HomeViewModel(val productoRepositoty: ProductoRepositoty) : ViewModel() {
+class HomeViewModel(private val productoRepository: ProductRepository) : ViewModel() {
+
+
 
     val productosLiveData = MutableLiveData(listOf(ProductoDTO()))
     val contadorCarritoLiveData: MutableLiveData<Int> = MutableLiveData(0)
-    val pedidoLiveData: MutableLiveData<PedidoDTO?> = MutableLiveData<PedidoDTO?>(null)
+    private val pedidoLiveData: MutableLiveData<PedidoDTO?> = MutableLiveData<PedidoDTO?>(null)
     val loading = MutableLiveData(false);
 
     init {
         getProductos()
     }
+
 
     fun onAddCar(cantidad: Int, size: String, productoDTO: ProductoDTO) {
 
@@ -72,11 +71,11 @@ class HomeViewModel(val productoRepositoty: ProductoRepositoty) : ViewModel() {
 
     }
 
-    fun getProductos() {
+    private fun getProductos() {
         viewModelScope.launch {
             loading.value = true
             val result = withContext(Dispatchers.IO) {
-                productoRepositoty.getProductos()
+                productoRepository.getProductos()
             }
             loading.value = false
 
@@ -88,6 +87,4 @@ class HomeViewModel(val productoRepositoty: ProductoRepositoty) : ViewModel() {
             }
         }
     }
-
-
 }

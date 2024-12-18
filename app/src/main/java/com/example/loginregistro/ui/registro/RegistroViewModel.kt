@@ -14,20 +14,10 @@ import modelo.ClienteDTO
 import retrofit2.*
 
 
-class RegistroViewModel( var clienteRepository: ClienteRepository) : ViewModel() {
+class RegistroViewModel(private val clienteRepository: ClienteRepository) : ViewModel() {
 
 
-    val cliente = MutableLiveData(
-        ClienteDTO(
-            nombre = "",
-            dni = "",
-            email = "",
-            telefono = "",
-            password = "",
-            direccion = ""
-        )
-    )
-
+    val cliente = MutableLiveData(ClienteDTO())
 
     val errorMessage =
         MutableLiveData(
@@ -64,31 +54,10 @@ class RegistroViewModel( var clienteRepository: ClienteRepository) : ViewModel()
 
         cliente.value = clienteDTO;
         listaCondicionales.value = listaCondicioanes
-
     }
 
-    fun registrarCliente(cliente: ClienteDTO, onSuccess: () -> Unit, onError: (String) -> Unit) {
+    fun onRegistrarClick(onProgress: (Boolean) -> Unit) {
 
-        viewModelScope.launch(Dispatchers.IO)
-
-        {
-            try {
-                val response = clienteRepository.registrarCliente(cliente)
-
-                if (response.isSuccess) {
-                    onSuccess() // Llamamos a la función de éxito (puede actualizar la UI, etc.)
-                } else {
-                    onError("Error: ${response.getOrThrow()}") // Pasamos el mensaje de error
-                }
-            } catch (e: Exception) {
-                onError("Exception: ${e.message}")
-            }
-        }
-    }
-
-
-
-    fun onRegistrarClick() {
         val clienteActual = cliente.value
 
         if (clienteActual != null) {
@@ -100,8 +69,10 @@ class RegistroViewModel( var clienteRepository: ClienteRepository) : ViewModel()
                     when (result.isSuccess) {
                         true -> {
                             cliente.value = result.getOrThrow()
+                            onProgress(true)
                         }
                         false -> {
+                            onProgress(false)
                             Log.d("REGISTRO", "Error:$result")
                         }
                     }
@@ -110,11 +81,4 @@ class RegistroViewModel( var clienteRepository: ClienteRepository) : ViewModel()
         }
     }
 
-
-
-
-
-    fun onRegistrarClick(cliente: ClienteDTO) {
-        Log.d("Registro", "Objeto Registro: $cliente")
-    }
 }

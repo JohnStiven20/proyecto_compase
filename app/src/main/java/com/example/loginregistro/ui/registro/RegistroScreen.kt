@@ -1,6 +1,7 @@
 package com.example.loginregistro.ui.registro
 
 import android.util.Patterns
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -21,13 +22,11 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import com.example.compose.AppTheme
 import com.example.loginregistro.R
 import com.example.loginregistro.data.componentes.CampoTextoPassword
 import com.example.loginregistro.data.componentes.CampoTextoPersonalizado
@@ -40,14 +39,10 @@ import modelo.ClienteDTO
 @Composable
 fun RegistroScreen(registroViewModel: RegistroViewModel, navController: NavController) {
 
-    val clienteDTO: ClienteDTO by registroViewModel.cliente.observeAsState(
-        ClienteDTO(
-            nombre = "", dni = "", email = "", telefono = "", password = "", direccion = ""
-        )
-    )
-
+    val clienteDTO: ClienteDTO by registroViewModel.cliente.observeAsState(ClienteDTO())
     val estado: Boolean by registroViewModel.estado.observeAsState(false)
     val errorMessage: ErrorMessage by registroViewModel.errorMessage.observeAsState(ErrorMessage())
+    val contexto = LocalContext.current
     val listaCondicionales by registroViewModel.listaCondicionales.observeAsState(
         mutableListOf(false, false, false)
     )
@@ -84,7 +79,6 @@ fun RegistroScreen(registroViewModel: RegistroViewModel, navController: NavContr
                 nombreCampo = "DNI",
                 text = clienteDTO.dni,
                 Onchage = { valor ->
-                    // Implementa validación específica del DNI si es necesario
                     registroViewModel.onClienteChange(clienteDTO.copy(dni = valor), listaCondicionales)
                 }
             )
@@ -102,7 +96,6 @@ fun RegistroScreen(registroViewModel: RegistroViewModel, navController: NavContr
                 nombreCampo = "Telefono",
                 text = clienteDTO.telefono,
                 Onchage = { valor ->
-                    // Implementa validación específica del teléfono si es necesario
                     registroViewModel.onClienteChange(clienteDTO.copy(telefono = valor), listaCondicionales)
                 }
             )
@@ -132,8 +125,13 @@ fun RegistroScreen(registroViewModel: RegistroViewModel, navController: NavContr
 
             Button(
                 onClick = {
-                    registroViewModel.onRegistrarClick()
-                    navController.navigate(Screen.Login.route)
+                    registroViewModel.onRegistrarClick(onProgress = { progress ->
+                        if (progress) {
+                          navController.navigate(Screen.Home.route)
+                        } else {
+                            Toast.makeText(contexto, "El email ya existe", Toast.LENGTH_SHORT).show()
+                        }
+                    })
                 },
                 modifier = Modifier
                     .fillMaxWidth()
