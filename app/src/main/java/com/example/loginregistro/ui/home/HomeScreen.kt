@@ -66,9 +66,11 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.loginregistro.R
 import com.example.loginregistro.data.modelo.ProductoDTO
+import com.example.loginregistro.data.modelo.Tipo
 import com.example.loginregistro.navigation.Screen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import modelo.Size
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -137,9 +139,9 @@ fun Body(
 ) {
 
 
-    val pizzas = productos.filter { it.tipo == "pizza" }
-    val pastas = productos.filter { it.tipo == "pasta" }
-    val bebidas = productos.filter { it.tipo == "bebida" }
+    val pizzas = productos.filter { it.tipo == Tipo.PIZZA }
+    val pastas = productos.filter { it.tipo == Tipo.PASTA }
+    val bebidas = productos.filter { it.tipo == Tipo.BEBIDA }
 
     LazyColumn(
         modifier = Modifier
@@ -186,7 +188,7 @@ fun Body(
                 imagenProducto = painterResource(R.drawable.fotobebida),
                 tituloSeccion = "Sección Bebida",
                 onAddCar = { cantidad, size, producto ->
-                    homeViewModel.onAddCar(cantidad, size, producto)
+                    homeViewModel.onAddCar(cantidad, size , producto)
                 }
             )
         }
@@ -199,7 +201,7 @@ fun ProductCarousel(
     productos: List<ProductoDTO>,
     imagenProducto: Painter = painterResource(R.drawable.fotopizza),
     tituloSeccion: String = "",
-    onAddCar: (Int, String, ProductoDTO) -> Unit
+    onAddCar: (Int, Size, ProductoDTO) -> Unit
 ) {
 
     Text(text = tituloSeccion)
@@ -222,12 +224,12 @@ fun ProductCarousel(
 fun ProductCard(
     imagenProducto: Painter = painterResource(R.drawable.fotopizza),
     producto: ProductoDTO = ProductoDTO(),
-    onAddCar: (Int, String, ProductoDTO) -> Unit
+    onAddCar: (Int, Size, ProductoDTO) -> Unit
 ) {
 
     val ingredientes: String = producto.ingredientes.joinToString { it.nombre }
     var cantidad by rememberSaveable { mutableIntStateOf(1) }
-    var sizeProducto by rememberSaveable { mutableStateOf("Size.GRANDE") }
+    var sizeProducto by rememberSaveable { mutableStateOf(Size.NADA) }
     var botonHabilitado by rememberSaveable { mutableStateOf(false) }
     val contexto = LocalContext.current
 
@@ -300,7 +302,9 @@ fun ProductCard(
                     }
                 }
             }
+
             Spacer(modifier = Modifier.height(16.dp))
+
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -330,7 +334,7 @@ fun ProductCard(
 
                 sizeProducto = MenuPizzeria()
 
-                botonHabilitado = sizeProducto != "NADA"
+                botonHabilitado = sizeProducto != Size.GRANDE
             }
         }
     }
@@ -338,11 +342,11 @@ fun ProductCard(
 
 
 @Composable
-fun MenuPizzeria(): String {
+fun MenuPizzeria(): Size {
 
     var expanded by rememberSaveable { mutableStateOf(false) }
     var texto by rememberSaveable { mutableStateOf("selecciona tamaño") }
-    var tipo by rememberSaveable { mutableStateOf("") }
+    var tipo by rememberSaveable { mutableStateOf(Size.NADA) }
 
     Column(modifier = Modifier.fillMaxSize(), Arrangement.Center, Alignment.CenterHorizontally) {
 
@@ -356,7 +360,7 @@ fun MenuPizzeria(): String {
                 onClick = {
                     expanded = false
                     texto = "Grande"
-                    tipo = "GRANDE"
+                    tipo = Size.GRANDE
                 },
             )
 
@@ -365,7 +369,7 @@ fun MenuPizzeria(): String {
                 onClick = {
                     expanded = false
                     texto = "Mediano"
-                    tipo = "MEDIANA"
+                    tipo = Size.MEDIANA
 
                 },
             )
@@ -375,7 +379,7 @@ fun MenuPizzeria(): String {
                 onClick = {
                     expanded = false
                     texto = "Enano"
-                    tipo = "ENANA"
+                    tipo = Size.PEQUENA
                 },
             )
 
@@ -384,7 +388,7 @@ fun MenuPizzeria(): String {
                 onClick = {
                     expanded = false
                     texto = "selecciona tamaño"
-                    tipo = "NADA"
+                    tipo = Size.NADA
                 },
             )
         }

@@ -57,7 +57,7 @@ fun LoginScreen(loginViewModel: LoginViewModel, navController: NavController) {
 
             Image(
                 painter = painterResource(R.drawable.logopizza),
-                contentDescription = "dwd",
+                contentDescription = null,
                 modifier = Modifier
                     .padding(30.dp)
                     .size(width = 300.dp, height = 300.dp)
@@ -72,7 +72,7 @@ fun LoginScreen(loginViewModel: LoginViewModel, navController: NavController) {
             Spacer(modifier = Modifier.height(100.dp))
 
             CampoTextoPersonalizado(
-                nombreCampo = "gmail",
+                nombreCampo = "Email",
                 text = loginDTO.email,
                 tipo = KeyboardType.Email,
                 Onchage = { loginViewModel.onLoginDTOChange(loginDTO.copy(email = it)) }
@@ -96,7 +96,7 @@ fun LoginScreen(loginViewModel: LoginViewModel, navController: NavController) {
             }
 
             TextButton(onClick = { navController.navigate(Screen.Registro.route) }) {
-                Text(text = "Iniciar sesion")
+                Text(text = "Crear una cuenta")
             }
 
             Button(

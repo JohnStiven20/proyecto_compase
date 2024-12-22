@@ -1,3 +1,3 @@
 package modelo
 
-enum class Size {ENANA,MEDIANO,GRANDE, NADA}
+enum class Size {PEQUENA,MEDIANA,GRANDE, NADA}

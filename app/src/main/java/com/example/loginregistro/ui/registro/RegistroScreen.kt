@@ -120,7 +120,7 @@ fun RegistroScreen(registroViewModel: RegistroViewModel, navController: NavContr
             )
 
             TextButton(onClick = { navController.navigate(Screen.Login.route) }) {
-                Text("¿Ya tienes cuenta?")
+                Text("¡Accede con tu cuenta!")
             }
 
             Button(
